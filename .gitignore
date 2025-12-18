@@ -1,0 +1,14 @@
+# Ignore everything
+/*
+
+# But not these files/folders!
+!data/
+!HDF_sections_assessment_2025_2026.html
+!your_final_strategy_group1.py
+!sample_final_report_word.qmd
+!sample_presentation_revealjs.qmd
+
+# Ignore everything inside data except what you want (if needed)
+# (Uncomment and specify if you want to ignore some files inside data)
+# data/*
+# !data/your_file.csv
