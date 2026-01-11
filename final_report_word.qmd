@@ -1,0 +1,333 @@
+---
+title: "Quantitative strategies on High Frequency Data"
+subtitle: "submission of research project -- SAMPLE PRESENTATION"
+author: "Team members: Sujith Madesh and Kacper Monson"
+date: 01/20/2026
+date-format: "MMM D, YYYY"
+format: docx
+---
+
+## Approaches undertaken
+
+We tested three intraday, rule‑based strategies on high‑frequency futures data for **Group 1 (NQ, SP)**. For each strategy we evaluate performance **quarter by quarter**, report gross vs net metrics (with transaction costs), and select a final parameter set using an explicit **in‑sample** period to avoid look‑ahead.
+
+### Common assumptions (applied to all strategies)
+
+- **No look‑ahead:** signals are translated into positions with a one‑bar delay (we only trade using information available at t−1).
+- **Trading window constraints / filtering:** we use a `no_trade` flag (built during data preparation) to force positions flat around the open/close and other excluded minutes. When `no_trade==1`, position is set to 0.
+- **Transaction costs:** each position change incurs a fixed per‑contract cost; we report both **gross** and **net** PnL/Sharpe/Calmar.
+- **Aggregation:** minute PnL is aggregated to daily PnL to compute Sharpe ratio and drawdowns more robustly.
+
+### Group 1 (NQ, SP): strategies considered
+
+**Strategy 1 — EMA crossover (trend following)**
+
+- **Signal:** fast EMA vs slow EMA on price.
+- **Entry/exit:** go long when fast EMA crosses above slow EMA; go short when fast crosses below slow (position flips on crossing).
+- **Parameters searched (grid):**
+    - `fastEMA ∈ {15, 20, 30, 45, 60, 75}`
+    - `slowEMA ∈ {90, 120, 150, 180, 240, 300, 360}`
+    - Constraint `fastEMA < slowEMA`
+- **Variants:** we evaluate both **MOM** (trend-following) and **MR** (sign-flipped contrarian) using the same signal.
+
+**Strategy 2 — Volatility Breakout (VB 2.2: EMA + volatility bands)**
+
+- **Signal:** fast EMA signal $s_t$, slow EMA center $\ell_t$, rolling volatility $\sigma_t$.
+- **Entry/exit:** enter when $s_t$ breaks above $U_t=\ell_t+m\sigma_t$ or below $L_t=\ell_t-m\sigma_t$; hold until the opposite band is crossed or the flat constraint forces exit.
+- **Variants:**
+    - **MOM:** follow the breakout direction.
+    - **MR:** take the opposite side (fade the breakout) when the regime is mean‑reverting.
+- **Parameters searched (grid):**
+    - `signalEMA ∈ {10, 20, 45, 60, 75, 90}`
+    - `slowEMA ∈ {90, 120, 150, 180, 240}` with constraint `signalEMA < slowEMA`
+    - `volat_sd ∈ {30, 60, 90}` (rolling standard deviation window)
+    - `m ∈ {1, 2, 3}` (band width multiplier)
+- **Implementation detail (our helper function):** instead of ad‑hoc position rules, we generate positions using our reusable helper `positionVB` (see [functions/position_VB.py](functions/position_VB.py)). The function takes arrays for `(signal, lower, upper, pos_flat, strategy)` and returns a stateful position series that:
+    - enforces forced-flat periods via `pos_flat`,
+    - uses **t−1** values of the signal and bands to set the position at time t (prevents look-ahead),
+    - supports both **MOM** and **MR** via a strategy flag.
+
+**Strategy 3 — Risk‑filtered EMA / hybrid (RF‑EMA)**
+
+- **Idea:** reduce crossover “churn” in sideways regimes by trading only when the EMA spread is large relative to recent volatility.
+- **Additional indicator:**
+    - rolling volatility `vSD = rolling_std(price, volat_sd)`
+    - trend strength `strength = |fast - slow| / vSD`
+- **Entry/exit:** follow the EMA crossover direction **only if** `strength > z_th` (otherwise remain flat). We also evaluate MR by flipping the position sign.
+- **Parameters searched (grid):**
+    - `fastEMA ∈ {15, 20, 30, 45}`
+    - `slowEMA ∈ {90, 120, 180, 240}` with constraint `fastEMA < slowEMA`
+    - `volat_sd ∈ {30, 60, 90}`
+    - `z_th ∈ {0.5, 1.0, 1.5, 2.0}`
+
+### Parameter search and model selection (per group)
+
+1. **Quarterly backtests:** for each quarter, contract, and parameter combination we compute minute PnL and aggregate to daily PnL. We report gross/net Sharpe, gross/net Calmar, cumulative PnL, and average daily transactions.
+2. **Ranking statistic:** we compute an assignment statistic per quarter:
+
+    $$
+    	ext{stat} = (\text{netSR} - 0.5)\,\max\!\left(0,\ \ln\!\left(\left|\frac{\text{netPnL}}{1000}\right|\right)\right)
+    $$
+
+3. **In-sample selection (avoid leakage):**
+    - We define `INSAMPLE_PERIODS` as the set of valid quarter labels in the dataset (excluding invalid labels like `None`/`nan`).
+    - For each contract and each strategy family, we aggregate results across the in-sample quarters and select the configuration that maximizes **sum(stat)**.
+    - We require that the chosen parameter set appears in **all** in-sample quarters for that contract (consistency constraint).
+    - To break ties, we apply a tiny turnover penalty: `score = sum_stat − 0.001 * mean_turnover`.
+    - We also select the best **side** (MOM vs MR) per contract.
+4. **Final evaluation:** using the fixed parameters per contract, we report performance quarter-by-quarter for the full available set of quarters.
+
+### Group 2
+
+We apply the same workflow to the Group 2 assets: evaluate the same three strategy families (EMA crossover, volatility breakout, and the risk‑filtered EMA variant), sweep parameters on an in‑sample period, then report out‑of‑sample performance with fixed parameters.
+
+
+## Finally selected strategy for **group 1**
+
+Provide a **general summary** (approach and a set of **final parameters**) for assets from **group 1**.
+(e.g. momentum strategy, cross over of two exponential moving averages EMA10 and EMA60).
+
+**Selected strategy (Group 1): Volatility Breakout 2.2 (fixed parameters)**
+
+We implement a volatility breakout rule based on an EMA signal and an EMA-centered volatility band:
+
+- Compute a fast EMA signal $s_t$ and a slow EMA center $\ell_t$.
+- Compute rolling volatility $\sigma_t$ (rolling standard deviation).
+- Define bands $U_t = \ell_t + m\,\sigma_t$ and $L_t = \ell_t - m\,\sigma_t$.
+- Generate positions with our helper function `positionVB` (see [functions/position_VB.py](functions/position_VB.py)), which enforces forced-flat periods (`pos_flat`) and uses **t−1** signal/band values to avoid look-ahead.
+- Apply transaction costs per trade and report gross vs net results.
+
+Final fixed parameters (chosen from the research notebook and kept constant across quarters):
+
+- **NQ (Momentum / breakout):** `signalEMA=20`, `slowEMA=60`, `volat_sd=30`, `m=2.0`
+- **SP (Mean reversion):** `signalEMA=90`, `slowEMA=180`, `volat_sd=60`, `m=1.0`
+
+
+<!-- here you can include code chunk that applies the strategy for group 1 and calculates all the summary statistics
+-->
+
+```{python}
+#|echo: false
+#| output: false
+import runpy
+
+# REMEMBER that in the final report you should 
+# summarise ALL teh QUARTERS - also the OUT-OF-SAMPLE
+
+runpy.run_path("final_strategy_group1.py")
+```
+
+
+
+## Summary of results for **group 1**
+
+```{python}
+#| echo: false
+
+# import the csv file with strategy results
+import pandas as pd
+summary_data1_all_quarters = pd.read_csv("outputs/group1/summary_data1_all_quarters.csv")
+
+# Cleaner report view: show only the two contracts (NQ, SP)
+summary_data1_all_quarters = (
+    summary_data1_all_quarters[
+        summary_data1_all_quarters["sym"].isin(["NQ", "SP"])
+    ]
+    .sort_values(["quarter", "sym"], ascending=[True, True])
+)
+
+# Format the table
+numeric_cols = summary_data1_all_quarters.select_dtypes(include=['float', 'int']).columns
+
+styled_table = (
+    summary_data1_all_quarters.style
+    .format("{:.2f}", subset=numeric_cols)   # format numbers only
+    .set_properties(**{"text-align": "right"})  
+    .set_table_styles([
+        {"selector": "th", "props": [("font-size", "10px")]},
+        {"selector": "td", "props": [("font-size", "10px")]}
+    ])
+    .hide(axis = "index")   # << hides the index
+)
+styled_table
+```
+
+**Commentary on the summary table (Group 1):**
+
+The strategy is intentionally **diversified by style across assets**: NQ is traded with a momentum/breakout rule, while SP is traded with a mean‑reversion variant.
+This creates a regime-dependent profile: trending quarters tend to benefit NQ, while choppy/oscillating quarters tend to benefit SP.
+Across quarters, the difference between **gross** and **net** metrics highlights that **transaction costs and turnover are economically meaningful**; in lower-edge periods the cost drag can dominate.
+
+## Equity line for **group 1** -- 2023Q1
+
+```{python}
+#| echo: false
+#| out-width: 100%
+from IPython.display import Image, display
+display(Image(filename="outputs/group1/data1_2023_Q1_NQ.png"))
+display(Image(filename="outputs/group1/data1_2023_Q1_SP.png"))
+```
+
+**NQ (MOM) – 2023Q1:** Strong quarter with a sustained positive net equity drift. The breakout component benefits from persistent directional moves, and the gap between gross and net is present but does not change the conclusion.
+
+**SP (MR) – 2023Q1:** Weak/negative quarter. Mean-reversion signals struggle when moves are persistent or when reversals are not clean; the cost drag further worsens the net equity line.
+
+## Equity line for **group 1** -- 2023Q2
+
+```{python}
+#| echo: false
+#| out-width: 100%
+# from IPython.display import Image, display
+# display(Image(filename="outputs/group1/data1_2023_Q2_NQ.png"))
+# display(Image(filename="outputs/group1/data1_2023_Q2_SP.png"))
+```
+
+**Comment:** 2023Q2 was not included in the current Group 1 evaluation run/output set. If required, add the quarter to the `quarters` list in `final_strategy_group1.py` and re-render.
+
+## Equity line for **group 1** -- 2023Q3
+
+```{python}
+#| echo: false
+#| out-width: 100%
+from IPython.display import Image, display
+display(Image(filename="outputs/group1/data1_2023_Q3_NQ.png"))
+display(Image(filename="outputs/group1/data1_2023_Q3_SP.png"))
+```
+
+**NQ (MOM) – 2023Q3:** Lower-edge quarter for momentum: equity is flatter with smaller gains and longer stagnant periods. In these conditions, the turnover/cost drag becomes more visible relative to the signal edge.
+
+**SP (MR) – 2023Q3:** Clear positive quarter. A more two‑sided/oscillating regime supports mean‑reversion entries, producing a steadier net equity climb.
+
+## Equity line for **group 1** -- 2023Q4
+
+```{python}
+#| echo: false
+#| out-width: 100%
+from IPython.display import Image, display
+display(Image(filename="outputs/group1/data1_2023_Q4_NQ.png"))
+display(Image(filename="outputs/group1/data1_2023_Q4_SP.png"))
+```
+
+**NQ (MOM) – 2023Q4:** Good quarter for breakouts, with net equity increasing through multiple trend episodes. Drawdowns exist but are recovered as trends persist long enough to offset costs.
+
+**SP (MR) – 2023Q4:** Slightly negative/flat overall. Mean‑reversion opportunities are either weaker or get interrupted by directional moves, leading to a net profile where costs can dominate.
+
+## Equity line for **group 1** -- 2024Q1
+
+```{python}
+#| echo: false
+#| out-width: 100%
+# from IPython.display import Image, display
+# display(Image(filename="outputs/group1/data1_2024_Q1_NQ.png"))
+# display(Image(filename="outputs/group1/data1_2024_Q1_SP.png"))
+```
+
+**Comment:** 2024Q1 was not included in the current Group 1 evaluation run/output set.
+
+## Equity line for **group 1** -- 2024Q2
+
+```{python}
+#| echo: false
+#| out-width: 100%
+from IPython.display import Image, display
+display(Image(filename="outputs/group1/data1_2024_Q2_NQ.png"))
+display(Image(filename="outputs/group1/data1_2024_Q2_SP.png"))
+```
+
+**NQ (MOM) – 2024Q2:** Challenging quarter for momentum; choppy/mean‑reverting price action tends to trigger breakouts that fail, creating drawdowns.
+
+**SP (MR) – 2024Q2:** One of the strongest quarters for the mean‑reversion leg. Repeated reversals allow the strategy to monetize noise around the slow EMA center while keeping net performance robust after costs.
+
+## Equity line for **group 1** -- 2024Q3
+
+```{python}
+#| echo: false
+#| out-width: 100%
+# from IPython.display import Image, display
+# display(Image(filename="outputs/group1/data1_2024_Q3_NQ.png"))
+# display(Image(filename="outputs/group1/data1_2024_Q3_SP.png"))
+```
+
+**Comment:** 2024Q3 was not included in the current Group 1 evaluation run/output set.
+
+## Equity line for **group 1** -- 2024Q4
+
+```{python}
+#| echo: false
+#| out-width: 100%
+from IPython.display import Image, display
+display(Image(filename="outputs/group1/data1_2024_Q4_NQ.png"))
+display(Image(filename="outputs/group1/data1_2024_Q4_SP.png"))
+```
+
+**NQ (MOM) – 2024Q4:** Strong quarter with pronounced positive net drift, consistent with sustained moves that favor breakouts.
+
+**SP (MR) – 2024Q4:** Near-flat/slightly positive quarter. Gross gains are relatively small and transaction costs consume a meaningful part of the edge.
+
+## Equity line for **group 1** -- 2025Q1
+
+```{python}
+#| echo: false
+#| out-width: 100%
+from IPython.display import Image, display
+display(Image(filename="outputs/group1/data1_2025_Q1_NQ.png"))
+display(Image(filename="outputs/group1/data1_2025_Q1_SP.png"))
+```
+
+**NQ (MOM) – 2025Q1:** Modest positive quarter. Momentum edge is present but smaller than in the strongest trend regimes; net still benefits from periods of sustained movement.
+
+**SP (MR) – 2025Q1:** Very strong quarter for mean‑reversion. The equity profile indicates frequent, profitable reversals where the strategy can scale gains beyond the cost drag.
+
+## Equity line for **group 1** -- 2025Q2
+
+```{python}
+#| echo: false
+#| out-width: 100%
+from IPython.display import Image, display
+display(Image(filename="outputs/group1/data1_2025_Q2_NQ.png"))
+display(Image(filename="outputs/group1/data1_2025_Q2_SP.png"))
+```
+
+**NQ (MOM) – 2025Q2:** Positive but lower-edge quarter: the net curve rises more gradually and shows sensitivity to transaction costs during sideways stretches.
+
+**SP (MR) – 2025Q2:** Strong quarter again; the mean‑reversion leg remains the dominant contributor with a relatively stable net trajectory.
+
+## Equity line for **group 1** -- 2025Q3
+
+```{python}
+#| echo: false
+#| out-width: 100%
+# from IPython.display import Image, display
+# display(Image(filename="outputs/group1/data1_2025_Q3_NQ.png"))
+# display(Image(filename="outputs/group1/data1_2025_Q3_SP.png"))
+```
+
+**Comment:** 2025Q3 was not included in the current Group 1 evaluation run/output set.
+
+## Equity line for **group 1** -- 2025Q4
+
+```{python}
+#| echo: false
+#| out-width: 100%
+# from IPython.display import Image, display
+# display(Image(filename="outputs/group1/data1_2025_Q4_NQ.png"))
+# display(Image(filename="outputs/group1/data1_2025_Q4_SP.png"))
+```
+
+**Comment:** 2025Q4 was not included in the current Group 1 evaluation run/output set.
+
+
+
+## Summary of results for **group 2**
+
+AND OF COURSE YOU SHOULD INCLUDE A SIMILAR SUMMARY TABLE, FIGURES AND COMMENTS FOR THE STRATEGY BASED ON **THE SECOND GROUP OF ASSETS**
+
+
+## Summary and conclusions
+
+### Group 1 conclusions
+
+Across the evaluated quarters, the Group 1 strategy demonstrates a clear **regime split**: the NQ momentum breakout performs best when trends persist, while the SP mean‑reversion component performs best when prices oscillate around the slow EMA center.
+This pairing reduces reliance on a single market condition and produces a more balanced behavior than applying one style universally.
+However, the gross-to-net differences show that **cost assumptions are a key sensitivity**, especially in lower-edge quarters when turnover remains non-trivial.
+Overall, we consider the strategy to be **interpretable and economically plausible** on Group 1, provided that risk limits (drawdown control) and realistic execution/cost modeling are enforced.

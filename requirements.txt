@@ -1,0 +1,14 @@
+# Core numerics/data
+numpy
+pandas
+
+# Plotting
+matplotlib
+seaborn
+
+# Parquet IO (pandas.read_parquet)
+pyarrow
+
+# Notebooks (optional but recommended)
+jupyter
+ipykernel

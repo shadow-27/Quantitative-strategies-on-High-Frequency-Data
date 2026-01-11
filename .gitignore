@@ -1,14 +1,48 @@
-# Ignore everything
-/*
+# --- Python / Jupyter ---
+.venv/
+__pycache__/
+**/__pycache__/
+*.pyc
+.ipynb_checkpoints/
 
-# But not these files/folders!
-!data/
-!HDF_sections_assessment_2025_2026.html
-!your_final_strategy_group1.py
-!sample_final_report_word.qmd
-!sample_presentation_revealjs.qmd
+# --- OS / editor ---
+.DS_Store
+Thumbs.db
 
-# Ignore everything inside data except what you want (if needed)
-# (Uncomment and specify if you want to ignore some files inside data)
-# data/*
-# !data/your_file.csv
+# --- Generated outputs (keep repo clean) ---
+# outputs/
+
+# Build artifacts
+build/
+
+# Legacy generated artifacts that may still exist
+summary_data1_all_quarters.csv
+data1_*.png
+
+# --- Quarto / render artifacts ---
+.quarto/
+.quarto_cache/
+*_files/
+action_plan.md
+
+# Rendered documents (regenerate from .qmd)
+# *.html
+# *.docx
+# *.pdf
+
+# Keep the assessment handout HTML if needed
+# !HDF_sections_assessment_2025_2026.html
+
+
+# --- Data hygiene ---
+# Parquet datasets can be large; keep CSV summaries if needed
+# data/*.parquet
+# !data/*.csv
+
+# --- Misc ---
+*.xlsx
+
+# --- Tooling caches ---
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
