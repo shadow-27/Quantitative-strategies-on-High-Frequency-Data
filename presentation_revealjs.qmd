@@ -49,13 +49,13 @@ These parameters are held fixed across quarters for each contract.
 <!-- here you can include code chunk that applies the strategy for group 1 and calculates all the summary statistics
 -->
 
-<!-- ```{python}
+```{python}
 #|echo: false
 #| output: false
 import runpy
 
 runpy.run_path("final_strategy_group1.py")
-``` -->
+```
 
 
 
@@ -236,6 +236,14 @@ Based on the optimization results, our final choice is a hybrid Volatility Break
     -   Parameters: (`window`=288 [24h], `vol_threshold`=0.5, `session`=Full)
 -   **XAG (Silver):** Session-Filtered variant
     -   Parameters: (`window`=144 [12h], `vol_threshold`=0.05, `session`=US_Only)
+
+```{python}
+#|echo: false
+#| output: false
+import runpy
+
+runpy.run_path("final_strategy_group2.py")
+```
 
 
 ## Summary of results {.scrollable}
