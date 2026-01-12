@@ -1,15 +1,20 @@
 ---
-title: "Quantitative strategies on High Frequency Data"
-subtitle: "submission of research project"
-author: "Team members: Sujith Madesh and Kacper Monson"
+title: "Quantitative Strategies on High Frequency Data"
+subtitle: "Submission of research project"
+author: "Sujith Madesh, Kacper Mosoń"
 date: 01/20/2026
 date-format: "MMM D, YYYY"
-format: revealjs
+format: 
+    html:
+        embed-resources: true
+toc: true
+toc-depth: 3
 ---
 
-## Approaches undertaken {.scrollable}
 
-### Group 1 (NQ, SP)
+# Group 1
+
+## Approaches undertaken {.scrollable}
 
 We implemented and evaluated three intraday strategies on 1‑minute data, aggregated to **daily PnL** and summarized **quarter-by-quarter**:
 
@@ -17,22 +22,20 @@ We implemented and evaluated three intraday strategies on 1‑minute data, aggre
 - **Strategy 2 (Volatility breakout 2.2):** fast EMA as the signal with volatility bands defined by slow EMA ± $m\cdot\sigma$ (rolling standard deviation). Both momentum and mean‑reversion variants were evaluated.
 - **Strategy 3 (RF‑EMA crossover 2.3):** EMA crossover with a regime filter (trade only when the EMA spread is large relative to recent volatility).
 
-## Group 1 — assumptions / execution rules {.scrollable}
+## Assumptions / execution rules {.scrollable}
 
-**Assumptions / execution rules (Group 1):**
-- We avoid the most illiquid minutes by excluding the first/last 10 minutes of the session from calculations.
-- We do not trade in the first part of the session and we flatten before the close (no overnight risk).
-- PnL is computed in USD using contract point values and includes fixed transaction costs per trade.
+*  We avoid the most illiquid minutes by excluding the first/last 10 minutes of the session from calculations.
+*  We do not trade in the first part of the session and we flatten before the close (no overnight risk).
+*  PnL is computed in USD using contract point values and includes fixed transaction costs per trade.
 
-## Group 1 — parameter search & selection {.scrollable}
+## Parameter search & selection {.scrollable}
 
-**Parameter search:**
-- For each quarter and each contract we ran a grid search over strategy parameters.
-- We computed performance metrics (gross/net Sharpe, Calmar, cumulative PnL, turnover) and a ranking statistic (`stat`).
-- To avoid overfitting within a quarter, we selected **one fixed parameter set per contract** by maximizing the **sum of `stat` across in‑sample quarters**.
+*  For each quarter and each contract we ran a grid search over strategy parameters.
+*  We computed performance metrics (gross/net Sharpe, Calmar, cumulative PnL, turnover) and a ranking statistic (`stat`).
+*  To avoid overfitting within a quarter, we selected **one fixed parameter set per contract** by maximizing the **sum of `stat` across in‑sample quarters**.
 
 
-## Finally selected strategy for **group 1**
+## Finally selected strategy
 
 Based on robustness across quarters and net performance, our final choice for Group 1 is:
 
@@ -46,17 +49,17 @@ These parameters are held fixed across quarters for each contract.
 <!-- here you can include code chunk that applies the strategy for group 1 and calculates all the summary statistics
 -->
 
-```{python}
+<!-- ```{python}
 #|echo: false
 #| output: false
 import runpy
 
 runpy.run_path("final_strategy_group1.py")
-```
+``` -->
 
 
 
-## Summary of results for **group 1** {.scrollable}
+## Summary of results {.scrollable}
 
 ```{python}
 #| echo: false
@@ -91,9 +94,10 @@ styled_table
 
 **Comment:** The table reports quarter-by-quarter metrics for **NQ** and **SP** only. Results are **regime dependent**: NQ (MOM) benefits more in trending quarters, while SP (MR) performs best when mean reversion dominates; net results are consistently below gross due to transaction costs.
 
+## Equity lines
 
 
-## Equity line for **group 1** -- 2023Q1 {.scrollable}
+### 2023Q1 {.scrollable}
 
 ```{python}
 #| echo: false
@@ -107,7 +111,7 @@ display(Image(filename="outputs/group1/data1_2023_Q1_SP.png"))
 
 **SP Comment:** Weak/negative quarter; mean-reversion has low edge here and costs amplify the drawdown.
 
-## Equity line for **group 1** -- 2023Q3 {.scrollable}
+### 2023Q3 {.scrollable}
 
 ```{python}
 #| echo: false
@@ -121,7 +125,7 @@ display(Image(filename="outputs/group1/data1_2023_Q3_SP.png"))
 
 **SP Comment:** Positive quarter; mean-reversion performs better in the more two-sided regime.
 
-## Equity line for **group 1** -- 2023Q4 {.scrollable}
+### 2023Q4 {.scrollable}
 
 ```{python}
 #| echo: false
@@ -136,7 +140,7 @@ display(Image(filename="outputs/group1/data1_2023_Q4_SP.png"))
 **SP Comment:** Slightly negative; mean-reversion struggles to overcome costs in this regime.
 
 
-## Equity line for **group 1** -- 2024Q2 {.scrollable}
+### 2024Q2 {.scrollable}
 
 ```{python}
 #| echo: false
@@ -150,7 +154,7 @@ display(Image(filename="outputs/group1/data1_2024_Q2_SP.png"))
 
 **SP Comment:** Strong quarter; mean-reversion benefits from oscillating prices and delivers solid net gains.
 
-## Equity line for **group 1** -- 2024Q4 {.scrollable}
+### 2024Q4 {.scrollable}
 
 ```{python}
 #| echo: false
@@ -164,7 +168,7 @@ display(Image(filename="outputs/group1/data1_2024_Q4_SP.png"))
 
 **SP Comment:** Near-flat quarter; small gross gains are largely eaten by transaction costs.
 
-## Equity line for **group 1** -- 2025Q1 {.scrollable}
+### 2025Q1 {.scrollable}
 
 ```{python}
 #| echo: false
@@ -178,7 +182,7 @@ display(Image(filename="outputs/group1/data1_2025_Q1_SP.png"))
 
 **SP Comment:** Very strong quarter; mean-reversion is the main driver of performance.
 
-## Equity line for **group 1** -- 2025Q2 {.scrollable}
+### 2025Q2 {.scrollable}
 
 ```{python}
 #| echo: false
@@ -192,17 +196,209 @@ display(Image(filename="outputs/group1/data1_2025_Q2_SP.png"))
 
 **SP Comment:** Strong quarter; mean-reversion produces large net gains with manageable turnover.
 
-## Summary of results for **group 2**
-
-AND OF COURSE YOU SHOULD INCLUDE A SIMILAR SUMMARY TABLE, FIGURES AND COMMENTS FOR THE STRATEGY BASED ON **THE SECOND GROUP OF ASSETS**
+<!--                                                                                  -->
 
 
-## Summary and conclusions
 
-### Group 1 conclusion (NQ + SP)
+
+
+
+
+
+# Group 2
+
+## Approaches undertaken
+
+We implemented and evaluated two primary logic types on 5-minute data, designed to handle high transaction costs ($15/$10) relative to volatility:
+
+*  **Strategy 1 (Volatility Breakout):** A trend-following approach where entries are triggered when the close price breaches the max/min of the last $N$ bars, conditioned on a minimum volatility threshold (rolling std dev) to ensure the move justifies the cost.
+*  **Strategy 2 (EMA + RSI):** A trend-momentum strategy using EMA crossovers for direction, filtered by RSI levels to prevent entering overextended positions (overbought/oversold).
+
+## Assumptions / execution rules
+
+*  **Timezone Management:** Data was converted from UTC to CET to strictly adhere to the 16:50 CET forced exit rule.
+*  **Forced Exits:** All positions are flattened daily at 16:50 CET. No trading occurs during the break (17:00–18:00) or the first 10 minutes after re-open (18:00–18:10).
+*  **Session Filtering:** To combat noise, we introduced a regime filter testing "Full Day" trading vs. "US Session Only" (13:00–16:30 CET) to limit entries to peak liquidity hours.
+
+## Parameter search & selection
+
+*  We performed a global portfolio optimization (cross-product grid search) rather than optimizing assets in isolation.
+*  We tested lookback windows ranging from 2 hours to 24 hours (24–288 bars) and various volatility thresholds.
+*  The selection criterion was maximizing the sum of the ranking statistic across all 7 in-sample quarters combined, ensuring the selected parameters were robust across different market years (2023–2025).
+
+## Finally selected strategy
+
+Based on the optimization results, our final choice is a hybrid Volatility Breakout portfolio that treats the two metals differently based on their noise profiles:
+
+**Strategy 1: Volatility Breakout**
+
+-   **XAU (Gold):** Long-Term Trend variant
+    -   Parameters: (`window`=288 [24h], `vol_threshold`=0.5, `session`=Full)
+-   **XAG (Silver):** Session-Filtered variant
+    -   Parameters: (`window`=144 [12h], `vol_threshold`=0.05, `session`=US_Only)
+
+
+## Summary of results {.scrollable}
+
+```{python}
+#| echo: false
+
+import pandas as pd
+
+# Load the CSV (adjust path if your file is in a different specific folder)
+summary_data2 = pd.read_csv("outputs/group2/summary_data2_all_quarters.csv")
+
+# Sort and Filter (ensure we only show XAU/XAG and correct order)
+summary_data2 = (
+    summary_data2[
+        summary_data2["sym"].isin(["XAU", "XAG"])
+    ]
+    .sort_values(["quarter", "sym"], ascending=[True, True])
+)
+
+# Format the table
+numeric_cols = summary_data2.select_dtypes(include=['float', 'int']).columns
+
+styled_table2 = (
+    summary_data2.style
+    .format("{:.2f}", subset=numeric_cols)   # format numbers only
+    .set_properties(**{"text-align": "right"})  
+    .set_table_styles([
+        {"selector": "th", "props": [("font-size", "20px")]},
+        {"selector": "td", "props": [("font-size", "20px")]}
+    ])
+    .hide(axis = "index")   # hide index
+)
+styled_table2
+```
+
+**Comment**: Gold (XAU) generally exhibited strong positive performance in trending quarters, notably 2024 Q4, driven by its 24-hour breakout strategy. Silver (XAG), with its US-session-only filter, largely avoided significant losses, but saw mixed PnL due to the highly restrictive time filter which severely limited the number of trades.
+
+## Equity lines
+
+### 2023Q1 {.scrollable}
+
+```{python}
+#| echo: false
+#| out-width: 100%
+from IPython.display import Image, display
+display(Image(filename="outputs/group2/data2_XAG_2023_Q1.png"))
+display(Image(filename="outputs/group2/data2_XAU_2023_Q1.png"))
+```
+
+**XAG (Silver)**: Remained completely flat (zero trades) as the strict US-session filter prevented entry during the lack of clear direction.
+
+**XAU (Gold)**: Suffered a deep "V-shaped" drawdown in February due to sharp reversals, though a strong rally in March helped recover a significant portion of the losses.
+
+### 2023Q3 {.scrollable}
+
+```{python}
+#| echo: false
+#| out-width: 100%
+from IPython.display import Image, display
+display(Image(filename="outputs/group2/data2_XAG_2023_Q3.png"))
+display(Image(filename="outputs/group2/data2_XAU_2023_Q3.png"))
+```
+
+**XAG (Silver)**: Stayed out of the market for nearly the entire quarter before catching a single, highly profitable breakout trend in late September.
+
+**XAU (Gold)**: Traded actively with mixed results, enduring a mid-quarter dip before finishing with a moderate profit as volatility increased
+
+### 2023Q4 {.scrollable}
+
+```{python}
+#| echo: false
+#| out-width: 100%
+from IPython.display import Image, display
+display(Image(filename="outputs/group2/data2_XAG_2023_Q4.png"))
+display(Image(filename="outputs/group2/data2_XAU_2023_Q4.png"))
+```
+
+**XAG (Silver)**: Executed a few precise, profitable trades, resulting in a clean "step-like" equity curve with minimal drawdown.
+
+**XAU (Gold)**: Capitalized on a sustained 3-month uptrend, generating consistent profits with the 24-hour breakout logic working effectively.
+
+### 2024Q2 {.scrollable}
+
+```{python}
+#| echo: false
+#| out-width: 100%
+from IPython.display import Image, display
+display(Image(filename="outputs/group2/data2_XAG_2024_Q2.png"))
+display(Image(filename="outputs/group2/data2_XAU_2024_Q2.png"))
+```
+
+**XAG (Silver)**: Displayed high volatility, recovering from a sharp mid-quarter drawdown to finish with a strong profit, effectively decoupling from Gold's poor performance.
+
+**XAU (Gold)**: Experienced its worst quarter, caught in a deep whipsaw pattern during May that resulted in a steady accumulation of losses.
+
+### 2024Q4 {.scrollable}
+
+```{python}
+#| echo: false
+#| out-width: 100%
+from IPython.display import Image, display
+display(Image(filename="outputs/group2/data2_XAG_2024_Q4.png"))
+display(Image(filename="outputs/group2/data2_XAU_2024_Q4.png"))
+```
+
+**XAG (Silver)**: Struggled to find traction, taking an early loss and failing to recover, ending the period with a small net loss.
+
+**XAU (Gold)**: Delivered exceptional performance, riding a smooth, continuous trend to generate the highest profit of any quarter (over $25k).
+
+### 2025Q1 {.scrollable}
+
+```{python}
+#| echo: false
+#| out-width: 100%
+from IPython.display import Image, display
+display(Image(filename="outputs/group2/data2_XAG_2025_Q1.png"))
+display(Image(filename="outputs/group2/data2_XAU_2025_Q1.png"))
+```
+
+**XAG (Silver)**: Took a single sharp loss in February and remained flat thereafter, effectively sidelined by the session filter.
+
+**XAU (Gold)**: Continued its winning streak with a nearly vertical equity curve, demonstrating the strategy's ability to compound gains during strong bull markets.
+
+### 2025Q2 {.scrollable}
+
+```{python}
+#| echo: false
+#| out-width: 100%
+from IPython.display import Image, display
+display(Image(filename="outputs/group2/data2_XAG_2025_Q2.png"))
+display(Image(filename="outputs/group2/data2_XAU_2025_Q2.png"))
+```
+
+**XAG (Silver)**: Remained choppy and negative, unable to sustain a trend during the US session window.
+
+**XAU (Gold)**: Peaked early with massive gains ($30k+) but gave back a significant portion during a late-quarter reversal, though still finishing profitably.
+
+
+
+
+
+
+
+# Summary and conclusions
+
+## Group 1 (NQ + SP)
 
 - We select **Volatility Breakout 2.2** with fixed parameters: **NQ uses MOM**, **SP uses MR**.
 - Performance is clearly **regime dependent**: NQ MOM contributes most in trending quarters, while SP MR contributes most in choppy/mean‑reverting quarters.
 - **Transaction costs matter**: the gap between gross and net is material, especially in lower-edge quarters.
 - The combined design (MOM on NQ + MR on SP) provides a **more balanced profile** than running a single style on both assets.
 - Overall, we view this as a reasonable, interpretable intraday strategy for Group 1, but **risk control and cost assumptions** are critical for real deployment.
+
+
+## Group 2 (XAU + XAG)
+
+*  **Final Selection**: We select a Hybrid Volatility Breakout strategy with asset-specific time regimes: Gold (XAU) operates on a continuous 24-hour window, while Silver (XAG) is strictly limited to the US-session (13:00–16:30 CET).
+
+*  **Role Allocation**: Performance is driven by distinct roles: XAU captures major global trends and overnight moves, while XAG remains flat during noise and only deploying capital during peak liquidity.
+
+*  **Cost Constraint**: Transaction cost sensitivity (15/10 fixed costs) is the defining challenge for this group. Standard high-frequency signals failed; success required extending lookback windows (12h–24h) to ensure average trade size significantly exceeded the break-even threshold.
+
+*  **Portfolio Synergy**: The combined design offers diversification through execution logic rather than just asset class. By filtering Silver's entries to the US session, we reduced portfolio correlation during low-volatility Asian/European mornings.
+
+*  **Overall View**: We view this as a robust, regime-aware strategy. While it relies heavily on Gold for gross profit, the addition of the time-filtered Silver component improves the quality-per-trade and prevents capital erosion during non-trending periods.
