@@ -7,6 +7,7 @@ date-format: "MMM D, YYYY"
 format: 
     html:
         embed-resources: true
+        title-block-banner: true
 toc: true
 toc-depth: 3
 ---
