@@ -9,6 +9,9 @@ seaborn
 # Parquet IO (pandas.read_parquet)
 pyarrow
 
+# Quarto/Jupyter execution helper
+pyyaml
+
 # Notebooks (optional but recommended)
 jupyter
 ipykernel

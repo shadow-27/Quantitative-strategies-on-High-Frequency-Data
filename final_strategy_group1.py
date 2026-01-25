@@ -6,7 +6,7 @@ from pathlib import Path
 from functions.position_VB import positionVB
 
 
-quarters = [
+INSAMPLE_QUARTERS = [
     "2023_Q1",
     "2023_Q3",
     "2023_Q4",
@@ -15,6 +15,29 @@ quarters = [
     "2025_Q1",
     "2025_Q2",
 ]
+
+
+def discover_oos_quarters(data_oos_dir: Path) -> list[str]:
+    quarters: list[str] = []
+    if not data_oos_dir.exists():
+        return quarters
+
+    for p in sorted(data_oos_dir.glob("data1_*.parquet")):
+        # Expected: data1_YYYY_Qx.parquet
+        name = p.stem  # e.g., data1_2025_Q3
+        if not name.startswith("data1_"):
+            continue
+        q = name.replace("data1_", "", 1)
+        quarters.append(q)
+
+    # Remove any accidental duplicates, preserve order
+    seen: set[str] = set()
+    out: list[str] = []
+    for q in quarters:
+        if q not in seen:
+            out.append(q)
+            seen.add(q)
+    return out
 
 
 def mySR(x, scale=252):
@@ -53,8 +76,35 @@ summary_rows = []
 OUTPUT_DIR = Path("outputs") / "group1"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-for quarter in quarters:
-    data1 = pd.read_parquet(f"data/data1_{quarter}.parquet")
+DATA_DIR = Path("data")
+DATA_OOS_DIR = DATA_DIR / "data_oos"
+
+OOS_QUARTERS = discover_oos_quarters(DATA_OOS_DIR)
+
+
+def iter_group1_inputs() -> list[tuple[str, str, Path]]:
+    """Returns (quarter, sample, parquet_path) tuples for IS and OOS.
+
+    Important: OOS quarters are always loaded from data/data_oos even if an IS file
+    with the same quarter label exists.
+    """
+    out: list[tuple[str, str, Path]] = []
+    out.extend(
+        (q, "IS", DATA_DIR / f"data1_{q}.parquet")
+        for q in INSAMPLE_QUARTERS
+    )
+    out.extend(
+        (q, "OOS", DATA_OOS_DIR / f"data1_{q}.parquet")
+        for q in OOS_QUARTERS
+    )
+    return out
+
+
+for quarter, sample, parquet_path in iter_group1_inputs():
+    if not parquet_path.exists():
+        raise FileNotFoundError(f"Missing parquet for {sample} quarter={quarter}: {parquet_path}")
+
+    data1 = pd.read_parquet(parquet_path)
     data1["datetime"] = pd.to_datetime(data1["datetime"])
     data1 = data1.set_index("datetime").sort_index()
 
@@ -66,6 +116,11 @@ for quarter in quarters:
     pos_flat = np.zeros(len(data1), dtype=float)
     pos_flat[data1.index.time <= pd.to_datetime("9:55").time()] = 1
     pos_flat[data1.index.time >= pd.to_datetime("15:40").time()] = 1
+
+    # Accumulators for the combined NQ+SP portfolio (daily series)
+    pnl_gross_d_port = None
+    pnl_net_d_port = None
+    ntrans_d_port = None
 
     for sym in ["NQ", "SP"]:
         p = data1[sym]
@@ -116,6 +171,16 @@ for quarter in quarters:
         pnl_net_d_sym = pd.Series(pnl_net, index=idx).groupby(idx.date).sum()
         ntrans_d_sym = pd.Series(ntrans, index=idx).groupby(idx.date).sum()
 
+        # Update portfolio aggregates (align on date index)
+        if pnl_gross_d_port is None:
+            pnl_gross_d_port = pnl_gross_d_sym.copy()
+            pnl_net_d_port = pnl_net_d_sym.copy()
+            ntrans_d_port = ntrans_d_sym.copy()
+        else:
+            pnl_gross_d_port = pnl_gross_d_port.add(pnl_gross_d_sym, fill_value=0.0)
+            pnl_net_d_port = pnl_net_d_port.add(pnl_net_d_sym, fill_value=0.0)
+            ntrans_d_port = ntrans_d_port.add(ntrans_d_sym, fill_value=0.0)
+
         gross_SR = mySR(pnl_gross_d_sym, scale=252)
         net_SR = mySR(pnl_net_d_sym, scale=252)
         gross_PnL = float(pnl_gross_d_sym.sum())
@@ -128,6 +193,7 @@ for quarter in quarters:
         summary_rows.append(
             {
                 "quarter": quarter,
+                "sample": sample,
                 "sym": sym,
                 "gross_SR": gross_SR,
                 "net_SR": net_SR,
@@ -147,8 +213,52 @@ for quarter in quarters:
         plt.title(f"Group 1 Volatility Breakout 2.2 ({sym}): Cumulative PnL ({quarter})")
         plt.legend()
         plt.grid(True)
-        plt.savefig(OUTPUT_DIR / f"data1_{quarter}_{sym}.png", dpi=300, bbox_inches="tight")
+        # Sample-specific filename (prevents collisions if the same quarter appears in IS and OOS)
+        plt.savefig(OUTPUT_DIR / f"data1_{quarter}_{sym}_{sample}.png", dpi=300, bbox_inches="tight")
+        # Legacy filename (kept for backwards compatibility; only for IS)
+        if sample == "IS":
+            plt.savefig(OUTPUT_DIR / f"data1_{quarter}_{sym}.png", dpi=300, bbox_inches="tight")
         plt.close()
+
+    # ---- Combined portfolio row + plot (NQ+SP) ----
+    # Note: strategy is 1 contract each (as coded above), so USD PnL can be summed directly.
+    gross_SR = mySR(pnl_gross_d_port, scale=252)
+    net_SR = mySR(pnl_net_d_port, scale=252)
+    gross_PnL = float(pnl_gross_d_port.sum())
+    net_PnL = float(pnl_net_d_port.sum())
+    gross_CR = calmar_from_daily_pnl(pnl_gross_d_port)
+    net_CR = calmar_from_daily_pnl(pnl_net_d_port)
+    av_daily_ntrans = float(ntrans_d_port.mean())
+    stat = (net_SR - 0.5) * np.maximum(0, np.log(np.abs(net_PnL / 1000)))
+
+    summary_rows.append(
+        {
+            "quarter": quarter,
+            "sample": sample,
+            "sym": "NQ+SP",
+            "gross_SR": gross_SR,
+            "net_SR": net_SR,
+            "gross_PnL": gross_PnL,
+            "net_PnL": net_PnL,
+            "gross_CR": gross_CR,
+            "net_CR": net_CR,
+            "av_daily_ntrans": av_daily_ntrans,
+            "stat": stat,
+        }
+    )
+
+    plt.figure(figsize=(12, 6))
+    plt.plot(pnl_gross_d_port.fillna(0).cumsum(), label="Gross PnL", color="blue")
+    plt.plot(pnl_net_d_port.fillna(0).cumsum(), label="Net PnL", color="red")
+    plt.title(f"Group 1 Volatility Breakout 2.2 (NQ+SP): Cumulative PnL ({quarter})")
+    plt.legend()
+    plt.grid(True)
+    # Sample-specific filename (prevents collisions if the same quarter appears in IS and OOS)
+    plt.savefig(OUTPUT_DIR / f"data1_{quarter}_NQSP_{sample}.png", dpi=300, bbox_inches="tight")
+    # Legacy filename (kept for backwards compatibility; only for IS)
+    if sample == "IS":
+        plt.savefig(OUTPUT_DIR / f"data1_{quarter}_NQSP.png", dpi=300, bbox_inches="tight")
+    plt.close()
 
 
 summary_data1_all_quarters = pd.DataFrame(summary_rows)

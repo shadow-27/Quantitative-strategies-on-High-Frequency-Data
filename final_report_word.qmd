@@ -129,13 +129,25 @@ runpy.run_path("final_strategy_group1.py")
 import pandas as pd
 summary_data1_all_quarters = pd.read_csv("outputs/group1/summary_data1_all_quarters.csv")
 
-# Cleaner report view: show only the two contracts (NQ, SP)
-summary_data1_all_quarters = (
-    summary_data1_all_quarters[
-        summary_data1_all_quarters["sym"].isin(["NQ", "SP"])
-    ]
-    .sort_values(["quarter", "sym"], ascending=[True, True])
-)
+# Ensure sample column exists (backward-compatible)
+if "sample" not in summary_data1_all_quarters.columns:
+    summary_data1_all_quarters["sample"] = "IS"
+
+# Report view: show the combined portfolio (NQ+SP) for BOTH IS and OOS
+summary_data1_all_quarters = summary_data1_all_quarters[
+    summary_data1_all_quarters["sym"].isin(["NQ+SP"])
+].copy()
+
+# Sort by quarter label and sample (IS first)
+summary_data1_all_quarters["_sample_sort"] = summary_data1_all_quarters["sample"].map({"IS": 0, "OOS": 1}).fillna(99)
+summary_data1_all_quarters = summary_data1_all_quarters.sort_values(
+    ["quarter", "_sample_sort"], ascending=[True, True]
+).drop(columns=["_sample_sort"])
+
+# Reorder columns for readability
+cols_first = [c for c in ["quarter", "sample", "sym"] if c in summary_data1_all_quarters.columns]
+cols_rest = [c for c in summary_data1_all_quarters.columns if c not in cols_first]
+summary_data1_all_quarters = summary_data1_all_quarters[cols_first + cols_rest]
 
 # Format the table
 numeric_cols = summary_data1_all_quarters.select_dtypes(include=['float', 'int']).columns
@@ -155,167 +167,109 @@ styled_table
 
 **Commentary on the summary table (Group 1):**
 
-The strategy is intentionally **diversified by style across assets**: NQ is traded with a momentum/breakout rule, while SP is traded with a mean‑reversion variant.
-This creates a regime-dependent profile: trending quarters tend to benefit NQ, while choppy/oscillating quarters tend to benefit SP.
-Across quarters, the difference between **gross** and **net** metrics highlights that **transaction costs and turnover are economically meaningful**; in lower-edge periods the cost drag can dominate.
+The table reports quarter-by-quarter performance for the **combined NQ+SP portfolio** (1 contract each, PnL summed in USD) across both **in-sample (IS)** and **out-of-sample (OOS)** periods.
+Because the portfolio mixes **NQ MOM** with **SP MR**, performance remains **regime dependent**: trending conditions tend to benefit the NQ momentum leg, while choppy/oscillating conditions tend to benefit the SP mean‑reversion leg.
+Across quarters, the difference between **gross** and **net** metrics highlights that **transaction costs and turnover are economically meaningful**; in lower-edge periods the cost drag can materially reduce profitability.
 
-## Equity line for **group 1** -- 2023Q1
-
-```{python}
-#| echo: false
-#| out-width: 100%
-from IPython.display import Image, display
-display(Image(filename="outputs/group1/data1_2023_Q1_NQ.png"))
-display(Image(filename="outputs/group1/data1_2023_Q1_SP.png"))
-```
-
-**NQ (MOM) – 2023Q1:** Strong quarter with a sustained positive net equity drift. The breakout component benefits from persistent directional moves, and the gap between gross and net is present but does not change the conclusion.
-
-**SP (MR) – 2023Q1:** Weak/negative quarter. Mean-reversion signals struggle when moves are persistent or when reversals are not clean; the cost drag further worsens the net equity line.
-
-## Equity line for **group 1** -- 2023Q2
+## Equity lines for **group 1** (portfolio NQ+SP) — IS and OOS
 
 ```{python}
 #| echo: false
 #| out-width: 100%
-# from IPython.display import Image, display
-# display(Image(filename="outputs/group1/data1_2023_Q2_NQ.png"))
-# display(Image(filename="outputs/group1/data1_2023_Q2_SP.png"))
+from IPython.display import Image, display, Markdown
+import pandas as pd
+import os
+
+df = pd.read_csv("outputs/group1/summary_data1_all_quarters.csv")
+if "sample" not in df.columns:
+    df["sample"] = "IS"
+
+def row_for(q: str, sym: str, sample: str):
+    r = df[(df["quarter"] == q) & (df["sample"] == sample) & (df["sym"] == sym)]
+    if len(r) == 0:
+        return None
+    return r.iloc[0]
+
+def fmt_money(x):
+    try:
+        return f"${float(x):,.0f}"
+    except Exception:
+        return "n/a"
+
+def fmt_num(x):
+    try:
+        return f"{float(x):.2f}"
+    except Exception:
+        return "n/a"
+
+quarters = (
+    df.loc[df["sym"] == "NQ+SP", ["quarter", "sample"]]
+    .drop_duplicates()
+    .sort_values(["quarter", "sample"], ascending=[True, True])
+)
+
+for _, qr in quarters.iterrows():
+    q = qr["quarter"]
+    sample = qr["sample"]
+    q_label = q.replace("_", "")
+
+    port = row_for(q, "NQ+SP", sample)
+    nq = row_for(q, "NQ", sample)
+    sp = row_for(q, "SP", sample)
+
+    gross_pnl = float(port["gross_PnL"]) if port is not None else None
+    net_pnl = float(port["net_PnL"]) if port is not None else None
+    gross_sr = float(port["gross_SR"]) if port is not None else None
+    net_sr = float(port["net_SR"]) if port is not None else None
+    net_cr = float(port["net_CR"]) if (port is not None and "net_CR" in port.index) else None
+    av_turn = float(port["av_daily_ntrans"]) if (port is not None and "av_daily_ntrans" in port.index) else None
+    cost_drag = (gross_pnl - net_pnl) if (gross_pnl is not None and net_pnl is not None) else None
+
+    # Determine which leg likely drove the portfolio (based on absolute net PnL)
+    driver = "Mixed"
+    if nq is not None and sp is not None:
+        try:
+            driver = "NQ (MOM)" if abs(float(nq["net_PnL"])) >= abs(float(sp["net_PnL"])) else "SP (MR)"
+        except Exception:
+            driver = "Mixed"
+
+    # High-level regime explanation consistent with the strategy design
+    if driver.startswith("NQ"):
+        regime = "trend / breakout-friendly"
+        why = "NQ’s momentum breakout leg dominates when intraday moves extend beyond bands and persist (fewer failed breakouts)."
+    elif driver.startswith("SP"):
+        regime = "choppy / mean-reverting"
+        why = "SP’s mean‑reversion leg dominates when prices oscillate around the slow EMA and breakouts frequently revert."
+    else:
+        regime = "mixed / transitional"
+        why = "Neither leg clearly dominates; mixed conditions often reduce edge and make costs more visible."
+
+    # What we observe: translate metrics into an interpretable description
+    if net_pnl is None:
+        obs = "Net PnL not available in summary."
+    elif net_pnl > 0 and (net_sr is not None and net_sr >= 2.0):
+        obs = "Strong positive performance with a clear upward net drift."
+    elif net_pnl > 0:
+        obs = "Positive performance, but with a lower-edge profile and higher sensitivity to costs."
+    elif net_pnl <= 0:
+        obs = "Weak/negative performance; drawdowns indicate the regime did not suit the fixed parameters."
+
+    display(Markdown(f"### {q_label} ({sample}) — Portfolio NQ+SP"))
+
+    plot_path = f"outputs/group1/data1_{q}_NQSP_{sample}.png"
+    if not os.path.exists(plot_path):
+        plot_path = f"outputs/group1/data1_{q}_NQSP.png"
+    display(Image(filename=plot_path))
+
+    display(Markdown(
+        f"**What we observe:** {obs}  \n"
+        f"- Net PnL: **{fmt_money(net_pnl)}** (gross **{fmt_money(gross_pnl)}**), net Sharpe **{fmt_num(net_sr)}**, net Calmar **{fmt_num(net_cr)}**.  \n"
+        f"- Turnover: avg daily transactions **{fmt_num(av_turn)}**; gross→net cost drag **{fmt_money(cost_drag)}**.  \n"
+        f"**Why (likely causes):** Main driver appears to be **{driver}** → regime looks **{regime}**. {why}  \n"
+        f"**Cost mechanism:** When the regime is less aligned, the strategy experiences more whipsaws/position flips, so transaction costs accumulate and net performance deteriorates versus gross."
+    ))
+
 ```
-
-**Comment:** 2023Q2 was not included in the current Group 1 evaluation run/output set. If required, add the quarter to the `quarters` list in `final_strategy_group1.py` and re-render.
-
-## Equity line for **group 1** -- 2023Q3
-
-```{python}
-#| echo: false
-#| out-width: 100%
-from IPython.display import Image, display
-display(Image(filename="outputs/group1/data1_2023_Q3_NQ.png"))
-display(Image(filename="outputs/group1/data1_2023_Q3_SP.png"))
-```
-
-**NQ (MOM) – 2023Q3:** Lower-edge quarter for momentum: equity is flatter with smaller gains and longer stagnant periods. In these conditions, the turnover/cost drag becomes more visible relative to the signal edge.
-
-**SP (MR) – 2023Q3:** Clear positive quarter. A more two‑sided/oscillating regime supports mean‑reversion entries, producing a steadier net equity climb.
-
-## Equity line for **group 1** -- 2023Q4
-
-```{python}
-#| echo: false
-#| out-width: 100%
-from IPython.display import Image, display
-display(Image(filename="outputs/group1/data1_2023_Q4_NQ.png"))
-display(Image(filename="outputs/group1/data1_2023_Q4_SP.png"))
-```
-
-**NQ (MOM) – 2023Q4:** Good quarter for breakouts, with net equity increasing through multiple trend episodes. Drawdowns exist but are recovered as trends persist long enough to offset costs.
-
-**SP (MR) – 2023Q4:** Slightly negative/flat overall. Mean‑reversion opportunities are either weaker or get interrupted by directional moves, leading to a net profile where costs can dominate.
-
-## Equity line for **group 1** -- 2024Q1
-
-```{python}
-#| echo: false
-#| out-width: 100%
-# from IPython.display import Image, display
-# display(Image(filename="outputs/group1/data1_2024_Q1_NQ.png"))
-# display(Image(filename="outputs/group1/data1_2024_Q1_SP.png"))
-```
-
-**Comment:** 2024Q1 was not included in the current Group 1 evaluation run/output set.
-
-## Equity line for **group 1** -- 2024Q2
-
-```{python}
-#| echo: false
-#| out-width: 100%
-from IPython.display import Image, display
-display(Image(filename="outputs/group1/data1_2024_Q2_NQ.png"))
-display(Image(filename="outputs/group1/data1_2024_Q2_SP.png"))
-```
-
-**NQ (MOM) – 2024Q2:** Challenging quarter for momentum; choppy/mean‑reverting price action tends to trigger breakouts that fail, creating drawdowns.
-
-**SP (MR) – 2024Q2:** One of the strongest quarters for the mean‑reversion leg. Repeated reversals allow the strategy to monetize noise around the slow EMA center while keeping net performance robust after costs.
-
-## Equity line for **group 1** -- 2024Q3
-
-```{python}
-#| echo: false
-#| out-width: 100%
-# from IPython.display import Image, display
-# display(Image(filename="outputs/group1/data1_2024_Q3_NQ.png"))
-# display(Image(filename="outputs/group1/data1_2024_Q3_SP.png"))
-```
-
-**Comment:** 2024Q3 was not included in the current Group 1 evaluation run/output set.
-
-## Equity line for **group 1** -- 2024Q4
-
-```{python}
-#| echo: false
-#| out-width: 100%
-from IPython.display import Image, display
-display(Image(filename="outputs/group1/data1_2024_Q4_NQ.png"))
-display(Image(filename="outputs/group1/data1_2024_Q4_SP.png"))
-```
-
-**NQ (MOM) – 2024Q4:** Strong quarter with pronounced positive net drift, consistent with sustained moves that favor breakouts.
-
-**SP (MR) – 2024Q4:** Near-flat/slightly positive quarter. Gross gains are relatively small and transaction costs consume a meaningful part of the edge.
-
-## Equity line for **group 1** -- 2025Q1
-
-```{python}
-#| echo: false
-#| out-width: 100%
-from IPython.display import Image, display
-display(Image(filename="outputs/group1/data1_2025_Q1_NQ.png"))
-display(Image(filename="outputs/group1/data1_2025_Q1_SP.png"))
-```
-
-**NQ (MOM) – 2025Q1:** Modest positive quarter. Momentum edge is present but smaller than in the strongest trend regimes; net still benefits from periods of sustained movement.
-
-**SP (MR) – 2025Q1:** Very strong quarter for mean‑reversion. The equity profile indicates frequent, profitable reversals where the strategy can scale gains beyond the cost drag.
-
-## Equity line for **group 1** -- 2025Q2
-
-```{python}
-#| echo: false
-#| out-width: 100%
-from IPython.display import Image, display
-display(Image(filename="outputs/group1/data1_2025_Q2_NQ.png"))
-display(Image(filename="outputs/group1/data1_2025_Q2_SP.png"))
-```
-
-**NQ (MOM) – 2025Q2:** Positive but lower-edge quarter: the net curve rises more gradually and shows sensitivity to transaction costs during sideways stretches.
-
-**SP (MR) – 2025Q2:** Strong quarter again; the mean‑reversion leg remains the dominant contributor with a relatively stable net trajectory.
-
-## Equity line for **group 1** -- 2025Q3
-
-```{python}
-#| echo: false
-#| out-width: 100%
-# from IPython.display import Image, display
-# display(Image(filename="outputs/group1/data1_2025_Q3_NQ.png"))
-# display(Image(filename="outputs/group1/data1_2025_Q3_SP.png"))
-```
-
-**Comment:** 2025Q3 was not included in the current Group 1 evaluation run/output set.
-
-## Equity line for **group 1** -- 2025Q4
-
-```{python}
-#| echo: false
-#| out-width: 100%
-# from IPython.display import Image, display
-# display(Image(filename="outputs/group1/data1_2025_Q4_NQ.png"))
-# display(Image(filename="outputs/group1/data1_2025_Q4_SP.png"))
-```
-
-**Comment:** 2025Q4 was not included in the current Group 1 evaluation run/output set.
 
 # Group 2
 
