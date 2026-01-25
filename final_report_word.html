@@ -1,0 +1,1633 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.30">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Sujith Madesh and Kacper Mosoń">
+
+<title>Quantitative strategies on High Frequency Data</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="final_report_word_files/libs/clipboard/clipboard.min.js"></script>
+<script src="final_report_word_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="final_report_word_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="final_report_word_files/libs/quarto-html/popper.min.js"></script>
+<script src="final_report_word_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="final_report_word_files/libs/quarto-html/anchor.min.js"></script>
+<link href="final_report_word_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="final_report_word_files/libs/quarto-html/quarto-syntax-highlighting-de070a7b0ab54f8780927367ac907214.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="final_report_word_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="final_report_word_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="final_report_word_files/libs/bootstrap/bootstrap-bb462d781dde1847d9e3ccf7736099dd.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="quarto-light">
+
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">Quantitative strategies on High Frequency Data</h1>
+            <p class="subtitle lead">Final report</p>
+                      </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>Sujith Madesh and Kacper Mosoń </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">Jan 24, 2026</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#group-1" id="toc-group-1" class="nav-link active" data-scroll-target="#group-1">Group 1</a>
+  <ul class="collapse">
+  <li><a href="#approaches-undertaken" id="toc-approaches-undertaken" class="nav-link" data-scroll-target="#approaches-undertaken">Approaches undertaken</a>
+  <ul class="collapse">
+  <li><a href="#common-assumptions-applied-to-all-strategies" id="toc-common-assumptions-applied-to-all-strategies" class="nav-link" data-scroll-target="#common-assumptions-applied-to-all-strategies">Common assumptions (applied to all strategies)</a></li>
+  <li><a href="#group-1-nq-sp-strategies-considered" id="toc-group-1-nq-sp-strategies-considered" class="nav-link" data-scroll-target="#group-1-nq-sp-strategies-considered">Group 1 (NQ, SP): strategies considered</a></li>
+  <li><a href="#parameter-search-and-model-selection-per-group" id="toc-parameter-search-and-model-selection-per-group" class="nav-link" data-scroll-target="#parameter-search-and-model-selection-per-group">Parameter search and model selection (per group)</a></li>
+  </ul></li>
+  <li><a href="#finally-selected-strategy-for-group-1" id="toc-finally-selected-strategy-for-group-1" class="nav-link" data-scroll-target="#finally-selected-strategy-for-group-1">Finally selected strategy for <strong>group 1</strong></a></li>
+  <li><a href="#summary-of-results-for-group-1" id="toc-summary-of-results-for-group-1" class="nav-link" data-scroll-target="#summary-of-results-for-group-1">Summary of results for <strong>group 1</strong></a></li>
+  <li><a href="#equity-line-for-group-1-2023q1" id="toc-equity-line-for-group-1-2023q1" class="nav-link" data-scroll-target="#equity-line-for-group-1-2023q1">Equity line for <strong>group 1</strong> – 2023Q1</a></li>
+  <li><a href="#equity-line-for-group-1-2023q2" id="toc-equity-line-for-group-1-2023q2" class="nav-link" data-scroll-target="#equity-line-for-group-1-2023q2">Equity line for <strong>group 1</strong> – 2023Q2</a></li>
+  <li><a href="#equity-line-for-group-1-2023q3" id="toc-equity-line-for-group-1-2023q3" class="nav-link" data-scroll-target="#equity-line-for-group-1-2023q3">Equity line for <strong>group 1</strong> – 2023Q3</a></li>
+  <li><a href="#equity-line-for-group-1-2023q4" id="toc-equity-line-for-group-1-2023q4" class="nav-link" data-scroll-target="#equity-line-for-group-1-2023q4">Equity line for <strong>group 1</strong> – 2023Q4</a></li>
+  <li><a href="#equity-line-for-group-1-2024q1" id="toc-equity-line-for-group-1-2024q1" class="nav-link" data-scroll-target="#equity-line-for-group-1-2024q1">Equity line for <strong>group 1</strong> – 2024Q1</a></li>
+  <li><a href="#equity-line-for-group-1-2024q2" id="toc-equity-line-for-group-1-2024q2" class="nav-link" data-scroll-target="#equity-line-for-group-1-2024q2">Equity line for <strong>group 1</strong> – 2024Q2</a></li>
+  <li><a href="#equity-line-for-group-1-2024q3" id="toc-equity-line-for-group-1-2024q3" class="nav-link" data-scroll-target="#equity-line-for-group-1-2024q3">Equity line for <strong>group 1</strong> – 2024Q3</a></li>
+  <li><a href="#equity-line-for-group-1-2024q4" id="toc-equity-line-for-group-1-2024q4" class="nav-link" data-scroll-target="#equity-line-for-group-1-2024q4">Equity line for <strong>group 1</strong> – 2024Q4</a></li>
+  <li><a href="#equity-line-for-group-1-2025q1" id="toc-equity-line-for-group-1-2025q1" class="nav-link" data-scroll-target="#equity-line-for-group-1-2025q1">Equity line for <strong>group 1</strong> – 2025Q1</a></li>
+  <li><a href="#equity-line-for-group-1-2025q2" id="toc-equity-line-for-group-1-2025q2" class="nav-link" data-scroll-target="#equity-line-for-group-1-2025q2">Equity line for <strong>group 1</strong> – 2025Q2</a></li>
+  <li><a href="#equity-line-for-group-1-2025q3" id="toc-equity-line-for-group-1-2025q3" class="nav-link" data-scroll-target="#equity-line-for-group-1-2025q3">Equity line for <strong>group 1</strong> – 2025Q3</a></li>
+  <li><a href="#equity-line-for-group-1-2025q4" id="toc-equity-line-for-group-1-2025q4" class="nav-link" data-scroll-target="#equity-line-for-group-1-2025q4">Equity line for <strong>group 1</strong> – 2025Q4</a></li>
+  </ul></li>
+  <li><a href="#group-2" id="toc-group-2" class="nav-link" data-scroll-target="#group-2">Group 2</a>
+  <ul class="collapse">
+  <li><a href="#approaches-undertaken-1" id="toc-approaches-undertaken-1" class="nav-link" data-scroll-target="#approaches-undertaken-1">Approaches undertaken</a></li>
+  <li><a href="#strategies-considered" id="toc-strategies-considered" class="nav-link" data-scroll-target="#strategies-considered">Strategies considered</a></li>
+  <li><a href="#assumptions-execution-rules" id="toc-assumptions-execution-rules" class="nav-link" data-scroll-target="#assumptions-execution-rules">Assumptions / execution rules</a></li>
+  <li><a href="#parameter-search-selection" id="toc-parameter-search-selection" class="nav-link" data-scroll-target="#parameter-search-selection">Parameter search &amp; selection</a></li>
+  <li><a href="#finally-selected-strategy" id="toc-finally-selected-strategy" class="nav-link" data-scroll-target="#finally-selected-strategy">Finally selected strategy</a></li>
+  <li><a href="#summary-of-results" id="toc-summary-of-results" class="nav-link" data-scroll-target="#summary-of-results">Summary of results</a></li>
+  <li><a href="#equity-lines" id="toc-equity-lines" class="nav-link" data-scroll-target="#equity-lines">Equity lines</a>
+  <ul class="collapse">
+  <li><a href="#q1" id="toc-q1" class="nav-link" data-scroll-target="#q1">2023Q1</a></li>
+  <li><a href="#q2---out-of-sample" id="toc-q2---out-of-sample" class="nav-link" data-scroll-target="#q2---out-of-sample">2023Q2 - out of sample</a></li>
+  <li><a href="#q3" id="toc-q3" class="nav-link" data-scroll-target="#q3">2023Q3</a></li>
+  <li><a href="#q4" id="toc-q4" class="nav-link" data-scroll-target="#q4">2023Q4</a></li>
+  <li><a href="#q1---out-of-sample" id="toc-q1---out-of-sample" class="nav-link" data-scroll-target="#q1---out-of-sample">2024Q1 - out of sample</a></li>
+  <li><a href="#q2" id="toc-q2" class="nav-link" data-scroll-target="#q2">2024Q2</a></li>
+  <li><a href="#q3---out-of-sample" id="toc-q3---out-of-sample" class="nav-link" data-scroll-target="#q3---out-of-sample">2024Q3 - out of sample</a></li>
+  <li><a href="#q4-1" id="toc-q4-1" class="nav-link" data-scroll-target="#q4-1">2024Q4</a></li>
+  <li><a href="#q1-1" id="toc-q1-1" class="nav-link" data-scroll-target="#q1-1">2025Q1</a></li>
+  <li><a href="#q2-1" id="toc-q2-1" class="nav-link" data-scroll-target="#q2-1">2025Q2</a></li>
+  <li><a href="#q3---out-of-sample-1" id="toc-q3---out-of-sample-1" class="nav-link" data-scroll-target="#q3---out-of-sample-1">2025Q3 - out of sample</a></li>
+  <li><a href="#q4---out-of-sample" id="toc-q4---out-of-sample" class="nav-link" data-scroll-target="#q4---out-of-sample">2025Q4 - out of sample</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#summary-and-conclusions" id="toc-summary-and-conclusions" class="nav-link" data-scroll-target="#summary-and-conclusions">Summary and conclusions</a>
+  <ul class="collapse">
+  <li><a href="#group-1-1" id="toc-group-1-1" class="nav-link" data-scroll-target="#group-1-1">Group 1</a></li>
+  <li><a href="#group-2-1" id="toc-group-2-1" class="nav-link" data-scroll-target="#group-2-1">Group 2</a></li>
+  </ul></li>
+  </ul>
+</nav>
+</div>
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+
+<section id="group-1" class="level1">
+<h1>Group 1</h1>
+<section id="approaches-undertaken" class="level2">
+<h2 class="anchored" data-anchor-id="approaches-undertaken">Approaches undertaken</h2>
+<p>We tested three intraday, rule‑based strategies on high‑frequency futures data for <strong>Group 1 (NQ, SP)</strong>. For each strategy we evaluate performance <strong>quarter by quarter</strong>, report gross vs net metrics (with transaction costs), and select a final parameter set using an explicit <strong>in‑sample</strong> period to avoid look‑ahead.</p>
+<section id="common-assumptions-applied-to-all-strategies" class="level3">
+<h3 class="anchored" data-anchor-id="common-assumptions-applied-to-all-strategies">Common assumptions (applied to all strategies)</h3>
+<ul>
+<li><strong>No look‑ahead:</strong> signals are translated into positions with a one‑bar delay (we only trade using information available at t−1).</li>
+<li><strong>Trading window constraints / filtering:</strong> we use a <code>no_trade</code> flag (built during data preparation) to force positions flat around the open/close and other excluded minutes. When <code>no_trade==1</code>, position is set to 0.</li>
+<li><strong>Transaction costs:</strong> each position change incurs a fixed per‑contract cost; we report both <strong>gross</strong> and <strong>net</strong> PnL/Sharpe/Calmar.</li>
+<li><strong>Aggregation:</strong> minute PnL is aggregated to daily PnL to compute Sharpe ratio and drawdowns more robustly.</li>
+</ul>
+</section>
+<section id="group-1-nq-sp-strategies-considered" class="level3">
+<h3 class="anchored" data-anchor-id="group-1-nq-sp-strategies-considered">Group 1 (NQ, SP): strategies considered</h3>
+<p><strong>Strategy 1 — EMA crossover (trend following)</strong></p>
+<ul>
+<li><strong>Signal:</strong> fast EMA vs slow EMA on price.</li>
+<li><strong>Entry/exit:</strong> go long when fast EMA crosses above slow EMA; go short when fast crosses below slow (position flips on crossing).</li>
+<li><strong>Parameters searched (grid):</strong>
+<ul>
+<li><code>fastEMA ∈ {15, 20, 30, 45, 60, 75}</code></li>
+<li><code>slowEMA ∈ {90, 120, 150, 180, 240, 300, 360}</code></li>
+<li>Constraint <code>fastEMA &lt; slowEMA</code></li>
+</ul></li>
+<li><strong>Variants:</strong> we evaluate both <strong>MOM</strong> (trend-following) and <strong>MR</strong> (sign-flipped contrarian) using the same signal.</li>
+</ul>
+<p><strong>Strategy 2 — Volatility Breakout (VB 2.2: EMA + volatility bands)</strong></p>
+<ul>
+<li><strong>Signal:</strong> fast EMA signal <span class="math inline">\(s_t\)</span>, slow EMA center <span class="math inline">\(\ell_t\)</span>, rolling volatility <span class="math inline">\(\sigma_t\)</span>.</li>
+<li><strong>Entry/exit:</strong> enter when <span class="math inline">\(s_t\)</span> breaks above <span class="math inline">\(U_t=\ell_t+m\sigma_t\)</span> or below <span class="math inline">\(L_t=\ell_t-m\sigma_t\)</span>; hold until the opposite band is crossed or the flat constraint forces exit.</li>
+<li><strong>Variants:</strong>
+<ul>
+<li><strong>MOM:</strong> follow the breakout direction.</li>
+<li><strong>MR:</strong> take the opposite side (fade the breakout) when the regime is mean‑reverting.</li>
+</ul></li>
+<li><strong>Parameters searched (grid):</strong>
+<ul>
+<li><code>signalEMA ∈ {10, 20, 45, 60, 75, 90}</code></li>
+<li><code>slowEMA ∈ {90, 120, 150, 180, 240}</code> with constraint <code>signalEMA &lt; slowEMA</code></li>
+<li><code>volat_sd ∈ {30, 60, 90}</code> (rolling standard deviation window)</li>
+<li><code>m ∈ {1, 2, 3}</code> (band width multiplier)</li>
+</ul></li>
+<li><strong>Implementation detail (our helper function):</strong> instead of ad‑hoc position rules, we generate positions using our reusable helper <code>positionVB</code> (see <a href="functions/position_VB.py">functions/position_VB.py</a>). The function takes arrays for <code>(signal, lower, upper, pos_flat, strategy)</code> and returns a stateful position series that:
+<ul>
+<li>enforces forced-flat periods via <code>pos_flat</code>,</li>
+<li>uses <strong>t−1</strong> values of the signal and bands to set the position at time t (prevents look-ahead),</li>
+<li>supports both <strong>MOM</strong> and <strong>MR</strong> via a strategy flag.</li>
+</ul></li>
+</ul>
+<p><strong>Strategy 3 — Risk‑filtered EMA / hybrid (RF‑EMA)</strong></p>
+<ul>
+<li><strong>Idea:</strong> reduce crossover “churn” in sideways regimes by trading only when the EMA spread is large relative to recent volatility.</li>
+<li><strong>Additional indicator:</strong>
+<ul>
+<li>rolling volatility <code>vSD = rolling_std(price, volat_sd)</code></li>
+<li>trend strength <code>strength = |fast - slow| / vSD</code></li>
+</ul></li>
+<li><strong>Entry/exit:</strong> follow the EMA crossover direction <strong>only if</strong> <code>strength &gt; z_th</code> (otherwise remain flat). We also evaluate MR by flipping the position sign.</li>
+<li><strong>Parameters searched (grid):</strong>
+<ul>
+<li><code>fastEMA ∈ {15, 20, 30, 45}</code></li>
+<li><code>slowEMA ∈ {90, 120, 180, 240}</code> with constraint <code>fastEMA &lt; slowEMA</code></li>
+<li><code>volat_sd ∈ {30, 60, 90}</code></li>
+<li><code>z_th ∈ {0.5, 1.0, 1.5, 2.0}</code></li>
+</ul></li>
+</ul>
+</section>
+<section id="parameter-search-and-model-selection-per-group" class="level3">
+<h3 class="anchored" data-anchor-id="parameter-search-and-model-selection-per-group">Parameter search and model selection (per group)</h3>
+<ol type="1">
+<li><p><strong>Quarterly backtests:</strong> for each quarter, contract, and parameter combination we compute minute PnL and aggregate to daily PnL. We report gross/net Sharpe, gross/net Calmar, cumulative PnL, and average daily transactions.</p></li>
+<li><p><strong>Ranking statistic:</strong> we compute an assignment statistic per quarter:</p>
+<p><span class="math display">\[
+     ext{stat} = (\text{netSR} - 0.5)\,\max\!\left(0,\ \ln\!\left(\left|\frac{\text{netPnL}}{1000}\right|\right)\right)
+\]</span></p></li>
+<li><p><strong>In-sample selection (avoid leakage):</strong></p>
+<ul>
+<li>We define <code>INSAMPLE_PERIODS</code> as the set of valid quarter labels in the dataset (excluding invalid labels like <code>None</code>/<code>nan</code>).</li>
+<li>For each contract and each strategy family, we aggregate results across the in-sample quarters and select the configuration that maximizes <strong>sum(stat)</strong>.</li>
+<li>We require that the chosen parameter set appears in <strong>all</strong> in-sample quarters for that contract (consistency constraint).</li>
+<li>To break ties, we apply a tiny turnover penalty: <code>score = sum_stat − 0.001 * mean_turnover</code>.</li>
+<li>We also select the best <strong>side</strong> (MOM vs MR) per contract.</li>
+</ul></li>
+<li><p><strong>Final evaluation:</strong> using the fixed parameters per contract, we report performance quarter-by-quarter for the full available set of quarters.</p></li>
+</ol>
+</section>
+</section>
+<section id="finally-selected-strategy-for-group-1" class="level2">
+<h2 class="anchored" data-anchor-id="finally-selected-strategy-for-group-1">Finally selected strategy for <strong>group 1</strong></h2>
+<p>Provide a <strong>general summary</strong> (approach and a set of <strong>final parameters</strong>) for assets from <strong>group 1</strong>. (e.g.&nbsp;momentum strategy, cross over of two exponential moving averages EMA10 and EMA60).</p>
+<p><strong>Selected strategy (Group 1): Volatility Breakout 2.2 (fixed parameters)</strong></p>
+<p>We implement a volatility breakout rule based on an EMA signal and an EMA-centered volatility band:</p>
+<ul>
+<li>Compute a fast EMA signal <span class="math inline">\(s_t\)</span> and a slow EMA center <span class="math inline">\(\ell_t\)</span>.</li>
+<li>Compute rolling volatility <span class="math inline">\(\sigma_t\)</span> (rolling standard deviation).</li>
+<li>Define bands <span class="math inline">\(U_t = \ell_t + m\,\sigma_t\)</span> and <span class="math inline">\(L_t = \ell_t - m\,\sigma_t\)</span>.</li>
+<li>Generate positions with our helper function <code>positionVB</code> (see <a href="functions/position_VB.py">functions/position_VB.py</a>), which enforces forced-flat periods (<code>pos_flat</code>) and uses <strong>t−1</strong> signal/band values to avoid look-ahead.</li>
+<li>Apply transaction costs per trade and report gross vs net results.</li>
+</ul>
+<p>Final fixed parameters (chosen from the research notebook and kept constant across quarters):</p>
+<ul>
+<li><strong>NQ (Momentum / breakout):</strong> <code>signalEMA=20</code>, <code>slowEMA=60</code>, <code>volat_sd=30</code>, <code>m=2.0</code></li>
+<li><strong>SP (Mean reversion):</strong> <code>signalEMA=90</code>, <code>slowEMA=180</code>, <code>volat_sd=60</code>, <code>m=1.0</code></li>
+</ul>
+<!-- here you can include code chunk that applies the strategy for group 1 and calculates all the summary statistics
+-->
+</section>
+<section id="summary-of-results-for-group-1" class="level2">
+<h2 class="anchored" data-anchor-id="summary-of-results-for-group-1">Summary of results for <strong>group 1</strong></h2>
+<div id="544c39ee" class="cell" data-execution_count="2">
+<div class="cell-output cell-output-display" data-execution_count="2">
+<style type="text/css">
+#T_5510c th {
+  font-size: 10px;
+}
+#T_5510c td {
+  font-size: 10px;
+}
+#T_5510c_row0_col0, #T_5510c_row0_col1, #T_5510c_row0_col2, #T_5510c_row0_col3, #T_5510c_row0_col4, #T_5510c_row0_col5, #T_5510c_row0_col6, #T_5510c_row0_col7, #T_5510c_row0_col8, #T_5510c_row0_col9, #T_5510c_row1_col0, #T_5510c_row1_col1, #T_5510c_row1_col2, #T_5510c_row1_col3, #T_5510c_row1_col4, #T_5510c_row1_col5, #T_5510c_row1_col6, #T_5510c_row1_col7, #T_5510c_row1_col8, #T_5510c_row1_col9, #T_5510c_row2_col0, #T_5510c_row2_col1, #T_5510c_row2_col2, #T_5510c_row2_col3, #T_5510c_row2_col4, #T_5510c_row2_col5, #T_5510c_row2_col6, #T_5510c_row2_col7, #T_5510c_row2_col8, #T_5510c_row2_col9, #T_5510c_row3_col0, #T_5510c_row3_col1, #T_5510c_row3_col2, #T_5510c_row3_col3, #T_5510c_row3_col4, #T_5510c_row3_col5, #T_5510c_row3_col6, #T_5510c_row3_col7, #T_5510c_row3_col8, #T_5510c_row3_col9, #T_5510c_row4_col0, #T_5510c_row4_col1, #T_5510c_row4_col2, #T_5510c_row4_col3, #T_5510c_row4_col4, #T_5510c_row4_col5, #T_5510c_row4_col6, #T_5510c_row4_col7, #T_5510c_row4_col8, #T_5510c_row4_col9, #T_5510c_row5_col0, #T_5510c_row5_col1, #T_5510c_row5_col2, #T_5510c_row5_col3, #T_5510c_row5_col4, #T_5510c_row5_col5, #T_5510c_row5_col6, #T_5510c_row5_col7, #T_5510c_row5_col8, #T_5510c_row5_col9, #T_5510c_row6_col0, #T_5510c_row6_col1, #T_5510c_row6_col2, #T_5510c_row6_col3, #T_5510c_row6_col4, #T_5510c_row6_col5, #T_5510c_row6_col6, #T_5510c_row6_col7, #T_5510c_row6_col8, #T_5510c_row6_col9, #T_5510c_row7_col0, #T_5510c_row7_col1, #T_5510c_row7_col2, #T_5510c_row7_col3, #T_5510c_row7_col4, #T_5510c_row7_col5, #T_5510c_row7_col6, #T_5510c_row7_col7, #T_5510c_row7_col8, #T_5510c_row7_col9, #T_5510c_row8_col0, #T_5510c_row8_col1, #T_5510c_row8_col2, #T_5510c_row8_col3, #T_5510c_row8_col4, #T_5510c_row8_col5, #T_5510c_row8_col6, #T_5510c_row8_col7, #T_5510c_row8_col8, #T_5510c_row8_col9, #T_5510c_row9_col0, #T_5510c_row9_col1, #T_5510c_row9_col2, #T_5510c_row9_col3, #T_5510c_row9_col4, #T_5510c_row9_col5, #T_5510c_row9_col6, #T_5510c_row9_col7, #T_5510c_row9_col8, #T_5510c_row9_col9, #T_5510c_row10_col0, #T_5510c_row10_col1, #T_5510c_row10_col2, #T_5510c_row10_col3, #T_5510c_row10_col4, #T_5510c_row10_col5, #T_5510c_row10_col6, #T_5510c_row10_col7, #T_5510c_row10_col8, #T_5510c_row10_col9, #T_5510c_row11_col0, #T_5510c_row11_col1, #T_5510c_row11_col2, #T_5510c_row11_col3, #T_5510c_row11_col4, #T_5510c_row11_col5, #T_5510c_row11_col6, #T_5510c_row11_col7, #T_5510c_row11_col8, #T_5510c_row11_col9, #T_5510c_row12_col0, #T_5510c_row12_col1, #T_5510c_row12_col2, #T_5510c_row12_col3, #T_5510c_row12_col4, #T_5510c_row12_col5, #T_5510c_row12_col6, #T_5510c_row12_col7, #T_5510c_row12_col8, #T_5510c_row12_col9, #T_5510c_row13_col0, #T_5510c_row13_col1, #T_5510c_row13_col2, #T_5510c_row13_col3, #T_5510c_row13_col4, #T_5510c_row13_col5, #T_5510c_row13_col6, #T_5510c_row13_col7, #T_5510c_row13_col8, #T_5510c_row13_col9 {
+  text-align: right;
+}
+</style>
+
+<table id="T_5510c" class="caption-top table table-sm table-striped small" data-quarto-postprocess="true">
+<thead>
+<tr class="header">
+<th id="T_5510c_level0_col0" class="col_heading level0 col0" data-quarto-table-cell-role="th">quarter</th>
+<th id="T_5510c_level0_col1" class="col_heading level0 col1" data-quarto-table-cell-role="th">sym</th>
+<th id="T_5510c_level0_col2" class="col_heading level0 col2" data-quarto-table-cell-role="th">gross_SR</th>
+<th id="T_5510c_level0_col3" class="col_heading level0 col3" data-quarto-table-cell-role="th">net_SR</th>
+<th id="T_5510c_level0_col4" class="col_heading level0 col4" data-quarto-table-cell-role="th">gross_PnL</th>
+<th id="T_5510c_level0_col5" class="col_heading level0 col5" data-quarto-table-cell-role="th">net_PnL</th>
+<th id="T_5510c_level0_col6" class="col_heading level0 col6" data-quarto-table-cell-role="th">gross_CR</th>
+<th id="T_5510c_level0_col7" class="col_heading level0 col7" data-quarto-table-cell-role="th">net_CR</th>
+<th id="T_5510c_level0_col8" class="col_heading level0 col8" data-quarto-table-cell-role="th">av_daily_ntrans</th>
+<th id="T_5510c_level0_col9" class="col_heading level0 col9" data-quarto-table-cell-role="th">stat</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td id="T_5510c_row0_col0" class="data row0 col0">2023_Q1</td>
+<td id="T_5510c_row0_col1" class="data row0 col1">NQ</td>
+<td id="T_5510c_row0_col2" class="data row0 col2">6.11</td>
+<td id="T_5510c_row0_col3" class="data row0 col3">5.85</td>
+<td id="T_5510c_row0_col4" class="data row0 col4">59253.00</td>
+<td id="T_5510c_row0_col5" class="data row0 col5">56901.00</td>
+<td id="T_5510c_row0_col6" class="data row0 col6">37.29</td>
+<td id="T_5510c_row0_col7" class="data row0 col7">35.26</td>
+<td id="T_5510c_row0_col8" class="data row0 col8">3.02</td>
+<td id="T_5510c_row0_col9" class="data row0 col9">21.62</td>
+</tr>
+<tr class="even">
+<td id="T_5510c_row1_col0" class="data row1 col0">2023_Q1</td>
+<td id="T_5510c_row1_col1" class="data row1 col1">SP</td>
+<td id="T_5510c_row1_col2" class="data row1 col2">-0.98</td>
+<td id="T_5510c_row1_col3" class="data row1 col3">-1.34</td>
+<td id="T_5510c_row1_col4" class="data row1 col4">-6326.15</td>
+<td id="T_5510c_row1_col5" class="data row1 col5">-8606.15</td>
+<td id="T_5510c_row1_col6" class="data row1 col6">-1.68</td>
+<td id="T_5510c_row1_col7" class="data row1 col7">-2.15</td>
+<td id="T_5510c_row1_col8" class="data row1 col8">2.92</td>
+<td id="T_5510c_row1_col9" class="data row1 col9">-3.96</td>
+</tr>
+<tr class="odd">
+<td id="T_5510c_row2_col0" class="data row2 col0">2023_Q3</td>
+<td id="T_5510c_row2_col1" class="data row2 col1">NQ</td>
+<td id="T_5510c_row2_col2" class="data row2 col2">0.83</td>
+<td id="T_5510c_row2_col3" class="data row2 col3">0.52</td>
+<td id="T_5510c_row2_col4" class="data row2 col4">6365.52</td>
+<td id="T_5510c_row2_col5" class="data row2 col5">4013.52</td>
+<td id="T_5510c_row2_col6" class="data row2 col6">1.92</td>
+<td id="T_5510c_row2_col7" class="data row2 col7">1.15</td>
+<td id="T_5510c_row2_col8" class="data row2 col8">3.02</td>
+<td id="T_5510c_row2_col9" class="data row2 col9">0.03</td>
+</tr>
+<tr class="even">
+<td id="T_5510c_row3_col0" class="data row3 col0">2023_Q3</td>
+<td id="T_5510c_row3_col1" class="data row3 col1">SP</td>
+<td id="T_5510c_row3_col2" class="data row3 col2">2.23</td>
+<td id="T_5510c_row3_col3" class="data row3 col3">1.74</td>
+<td id="T_5510c_row3_col4" class="data row3 col4">9282.50</td>
+<td id="T_5510c_row3_col5" class="data row3 col5">7194.50</td>
+<td id="T_5510c_row3_col6" class="data row3 col6">7.70</td>
+<td id="T_5510c_row3_col7" class="data row3 col7">5.38</td>
+<td id="T_5510c_row3_col8" class="data row3 col8">2.68</td>
+<td id="T_5510c_row3_col9" class="data row3 col9">2.45</td>
+</tr>
+<tr class="odd">
+<td id="T_5510c_row4_col0" class="data row4 col0">2023_Q4</td>
+<td id="T_5510c_row4_col1" class="data row4 col1">NQ</td>
+<td id="T_5510c_row4_col2" class="data row4 col2">2.05</td>
+<td id="T_5510c_row4_col3" class="data row4 col3">1.78</td>
+<td id="T_5510c_row4_col4" class="data row4 col4">16052.96</td>
+<td id="T_5510c_row4_col5" class="data row4 col5">13988.96</td>
+<td id="T_5510c_row4_col6" class="data row4 col6">8.87</td>
+<td id="T_5510c_row4_col7" class="data row4 col7">6.98</td>
+<td id="T_5510c_row4_col8" class="data row4 col8">2.69</td>
+<td id="T_5510c_row4_col9" class="data row4 col9">3.38</td>
+</tr>
+<tr class="even">
+<td id="T_5510c_row5_col0" class="data row5 col0">2023_Q4</td>
+<td id="T_5510c_row5_col1" class="data row5 col1">SP</td>
+<td id="T_5510c_row5_col2" class="data row5 col2">-0.08</td>
+<td id="T_5510c_row5_col3" class="data row5 col3">-0.50</td>
+<td id="T_5510c_row5_col4" class="data row5 col4">-340.20</td>
+<td id="T_5510c_row5_col5" class="data row5 col5">-2188.20</td>
+<td id="T_5510c_row5_col6" class="data row5 col6">-0.12</td>
+<td id="T_5510c_row5_col7" class="data row5 col7">-0.71</td>
+<td id="T_5510c_row5_col8" class="data row5 col8">2.41</td>
+<td id="T_5510c_row5_col9" class="data row5 col9">-0.78</td>
+</tr>
+<tr class="odd">
+<td id="T_5510c_row6_col0" class="data row6 col0">2024_Q2</td>
+<td id="T_5510c_row6_col1" class="data row6 col1">NQ</td>
+<td id="T_5510c_row6_col2" class="data row6 col2">-0.24</td>
+<td id="T_5510c_row6_col3" class="data row6 col3">-0.43</td>
+<td id="T_5510c_row6_col4" class="data row6 col4">-2615.56</td>
+<td id="T_5510c_row6_col5" class="data row6 col5">-4607.56</td>
+<td id="T_5510c_row6_col6" class="data row6 col6">-0.50</td>
+<td id="T_5510c_row6_col7" class="data row6 col7">-0.85</td>
+<td id="T_5510c_row6_col8" class="data row6 col8">2.55</td>
+<td id="T_5510c_row6_col9" class="data row6 col9">-1.42</td>
+</tr>
+<tr class="even">
+<td id="T_5510c_row7_col0" class="data row7 col0">2024_Q2</td>
+<td id="T_5510c_row7_col1" class="data row7 col1">SP</td>
+<td id="T_5510c_row7_col2" class="data row7 col2">3.07</td>
+<td id="T_5510c_row7_col3" class="data row7 col3">2.70</td>
+<td id="T_5510c_row7_col4" class="data row7 col4">15334.60</td>
+<td id="T_5510c_row7_col5" class="data row7 col5">13366.60</td>
+<td id="T_5510c_row7_col6" class="data row7 col6">9.56</td>
+<td id="T_5510c_row7_col7" class="data row7 col7">7.99</td>
+<td id="T_5510c_row7_col8" class="data row7 col8">2.52</td>
+<td id="T_5510c_row7_col9" class="data row7 col9">5.70</td>
+</tr>
+<tr class="odd">
+<td id="T_5510c_row8_col0" class="data row8 col0">2024_Q4</td>
+<td id="T_5510c_row8_col1" class="data row8 col1">NQ</td>
+<td id="T_5510c_row8_col2" class="data row8 col2">2.87</td>
+<td id="T_5510c_row8_col3" class="data row8 col3">2.65</td>
+<td id="T_5510c_row8_col4" class="data row8 col4">26062.22</td>
+<td id="T_5510c_row8_col5" class="data row8 col5">24166.22</td>
+<td id="T_5510c_row8_col6" class="data row8 col6">20.90</td>
+<td id="T_5510c_row8_col7" class="data row8 col7">19.00</td>
+<td id="T_5510c_row8_col8" class="data row8 col8">2.43</td>
+<td id="T_5510c_row8_col9" class="data row8 col9">6.86</td>
+</tr>
+<tr class="even">
+<td id="T_5510c_row9_col0" class="data row9 col0">2024_Q4</td>
+<td id="T_5510c_row9_col1" class="data row9 col1">SP</td>
+<td id="T_5510c_row9_col2" class="data row9 col2">0.51</td>
+<td id="T_5510c_row9_col3" class="data row9 col3">0.16</td>
+<td id="T_5510c_row9_col4" class="data row9 col4">2757.60</td>
+<td id="T_5510c_row9_col5" class="data row9 col5">861.60</td>
+<td id="T_5510c_row9_col6" class="data row9 col6">0.97</td>
+<td id="T_5510c_row9_col7" class="data row9 col7">0.27</td>
+<td id="T_5510c_row9_col8" class="data row9 col8">2.43</td>
+<td id="T_5510c_row9_col9" class="data row9 col9">-0.00</td>
+</tr>
+<tr class="odd">
+<td id="T_5510c_row10_col0" class="data row10 col0">2025_Q1</td>
+<td id="T_5510c_row10_col1" class="data row10 col1">NQ</td>
+<td id="T_5510c_row10_col2" class="data row10 col2">0.54</td>
+<td id="T_5510c_row10_col3" class="data row10 col3">0.33</td>
+<td id="T_5510c_row10_col4" class="data row10 col4">5660.44</td>
+<td id="T_5510c_row10_col5" class="data row10 col5">3404.44</td>
+<td id="T_5510c_row10_col6" class="data row10 col6">0.98</td>
+<td id="T_5510c_row10_col7" class="data row10 col7">0.57</td>
+<td id="T_5510c_row10_col8" class="data row10 col8">2.98</td>
+<td id="T_5510c_row10_col9" class="data row10 col9">-0.21</td>
+</tr>
+<tr class="even">
+<td id="T_5510c_row11_col0" class="data row11 col0">2025_Q1</td>
+<td id="T_5510c_row11_col1" class="data row11 col1">SP</td>
+<td id="T_5510c_row11_col2" class="data row11 col2">4.06</td>
+<td id="T_5510c_row11_col3" class="data row11 col3">3.81</td>
+<td id="T_5510c_row11_col4" class="data row11 col4">30609.65</td>
+<td id="T_5510c_row11_col5" class="data row11 col5">28617.65</td>
+<td id="T_5510c_row11_col6" class="data row11 col6">28.57</td>
+<td id="T_5510c_row11_col7" class="data row11 col7">25.70</td>
+<td id="T_5510c_row11_col8" class="data row11 col8">2.63</td>
+<td id="T_5510c_row11_col9" class="data row11 col9">11.12</td>
+</tr>
+<tr class="odd">
+<td id="T_5510c_row12_col0" class="data row12 col0">2025_Q2</td>
+<td id="T_5510c_row12_col1" class="data row12 col1">NQ</td>
+<td id="T_5510c_row12_col2" class="data row12 col2">0.33</td>
+<td id="T_5510c_row12_col3" class="data row12 col3">0.25</td>
+<td id="T_5510c_row12_col4" class="data row12 col4">7438.44</td>
+<td id="T_5510c_row12_col5" class="data row12 col5">5518.44</td>
+<td id="T_5510c_row12_col6" class="data row12 col6">0.89</td>
+<td id="T_5510c_row12_col7" class="data row12 col7">0.64</td>
+<td id="T_5510c_row12_col8" class="data row12 col8">2.46</td>
+<td id="T_5510c_row12_col9" class="data row12 col9">-0.43</td>
+</tr>
+<tr class="even">
+<td id="T_5510c_row13_col0" class="data row13 col0">2025_Q2</td>
+<td id="T_5510c_row13_col1" class="data row13 col1">SP</td>
+<td id="T_5510c_row13_col2" class="data row13 col2">3.87</td>
+<td id="T_5510c_row13_col3" class="data row13 col3">3.71</td>
+<td id="T_5510c_row13_col4" class="data row13 col4">42551.35</td>
+<td id="T_5510c_row13_col5" class="data row13 col5">40607.35</td>
+<td id="T_5510c_row13_col6" class="data row13 col6">25.84</td>
+<td id="T_5510c_row13_col7" class="data row13 col7">24.20</td>
+<td id="T_5510c_row13_col8" class="data row13 col8">2.49</td>
+<td id="T_5510c_row13_col9" class="data row13 col9">11.87</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p><strong>Commentary on the summary table (Group 1):</strong></p>
+<p>The strategy is intentionally <strong>diversified by style across assets</strong>: NQ is traded with a momentum/breakout rule, while SP is traded with a mean‑reversion variant. This creates a regime-dependent profile: trending quarters tend to benefit NQ, while choppy/oscillating quarters tend to benefit SP. Across quarters, the difference between <strong>gross</strong> and <strong>net</strong> metrics highlights that <strong>transaction costs and turnover are economically meaningful</strong>; in lower-edge periods the cost drag can dominate.</p>
+</section>
+<section id="equity-line-for-group-1-2023q1" class="level2">
+<h2 class="anchored" data-anchor-id="equity-line-for-group-1-2023q1">Equity line for <strong>group 1</strong> – 2023Q1</h2>
+<div id="114d2ef2" class="cell" data-execution_count="3">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final_report_word_files/figure-html/cell-4-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final_report_word_files/figure-html/cell-4-output-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>NQ (MOM) – 2023Q1:</strong> Strong quarter with a sustained positive net equity drift. The breakout component benefits from persistent directional moves, and the gap between gross and net is present but does not change the conclusion.</p>
+<p><strong>SP (MR) – 2023Q1:</strong> Weak/negative quarter. Mean-reversion signals struggle when moves are persistent or when reversals are not clean; the cost drag further worsens the net equity line.</p>
+</section>
+<section id="equity-line-for-group-1-2023q2" class="level2">
+<h2 class="anchored" data-anchor-id="equity-line-for-group-1-2023q2">Equity line for <strong>group 1</strong> – 2023Q2</h2>
+<p><strong>Comment:</strong> 2023Q2 was not included in the current Group 1 evaluation run/output set. If required, add the quarter to the <code>quarters</code> list in <code>final_strategy_group1.py</code> and re-render.</p>
+</section>
+<section id="equity-line-for-group-1-2023q3" class="level2">
+<h2 class="anchored" data-anchor-id="equity-line-for-group-1-2023q3">Equity line for <strong>group 1</strong> – 2023Q3</h2>
+<div id="661ccc15" class="cell" data-execution_count="5">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final_report_word_files/figure-html/cell-6-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final_report_word_files/figure-html/cell-6-output-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>NQ (MOM) – 2023Q3:</strong> Lower-edge quarter for momentum: equity is flatter with smaller gains and longer stagnant periods. In these conditions, the turnover/cost drag becomes more visible relative to the signal edge.</p>
+<p><strong>SP (MR) – 2023Q3:</strong> Clear positive quarter. A more two‑sided/oscillating regime supports mean‑reversion entries, producing a steadier net equity climb.</p>
+</section>
+<section id="equity-line-for-group-1-2023q4" class="level2">
+<h2 class="anchored" data-anchor-id="equity-line-for-group-1-2023q4">Equity line for <strong>group 1</strong> – 2023Q4</h2>
+<div id="51dac7ba" class="cell" data-execution_count="6">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final_report_word_files/figure-html/cell-7-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final_report_word_files/figure-html/cell-7-output-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>NQ (MOM) – 2023Q4:</strong> Good quarter for breakouts, with net equity increasing through multiple trend episodes. Drawdowns exist but are recovered as trends persist long enough to offset costs.</p>
+<p><strong>SP (MR) – 2023Q4:</strong> Slightly negative/flat overall. Mean‑reversion opportunities are either weaker or get interrupted by directional moves, leading to a net profile where costs can dominate.</p>
+</section>
+<section id="equity-line-for-group-1-2024q1" class="level2">
+<h2 class="anchored" data-anchor-id="equity-line-for-group-1-2024q1">Equity line for <strong>group 1</strong> – 2024Q1</h2>
+<p><strong>Comment:</strong> 2024Q1 was not included in the current Group 1 evaluation run/output set.</p>
+</section>
+<section id="equity-line-for-group-1-2024q2" class="level2">
+<h2 class="anchored" data-anchor-id="equity-line-for-group-1-2024q2">Equity line for <strong>group 1</strong> – 2024Q2</h2>
+<div id="2bf333d6" class="cell" data-execution_count="8">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final_report_word_files/figure-html/cell-9-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final_report_word_files/figure-html/cell-9-output-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>NQ (MOM) – 2024Q2:</strong> Challenging quarter for momentum; choppy/mean‑reverting price action tends to trigger breakouts that fail, creating drawdowns.</p>
+<p><strong>SP (MR) – 2024Q2:</strong> One of the strongest quarters for the mean‑reversion leg. Repeated reversals allow the strategy to monetize noise around the slow EMA center while keeping net performance robust after costs.</p>
+</section>
+<section id="equity-line-for-group-1-2024q3" class="level2">
+<h2 class="anchored" data-anchor-id="equity-line-for-group-1-2024q3">Equity line for <strong>group 1</strong> – 2024Q3</h2>
+<p><strong>Comment:</strong> 2024Q3 was not included in the current Group 1 evaluation run/output set.</p>
+</section>
+<section id="equity-line-for-group-1-2024q4" class="level2">
+<h2 class="anchored" data-anchor-id="equity-line-for-group-1-2024q4">Equity line for <strong>group 1</strong> – 2024Q4</h2>
+<div id="55a8fda8" class="cell" data-execution_count="10">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final_report_word_files/figure-html/cell-11-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final_report_word_files/figure-html/cell-11-output-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>NQ (MOM) – 2024Q4:</strong> Strong quarter with pronounced positive net drift, consistent with sustained moves that favor breakouts.</p>
+<p><strong>SP (MR) – 2024Q4:</strong> Near-flat/slightly positive quarter. Gross gains are relatively small and transaction costs consume a meaningful part of the edge.</p>
+</section>
+<section id="equity-line-for-group-1-2025q1" class="level2">
+<h2 class="anchored" data-anchor-id="equity-line-for-group-1-2025q1">Equity line for <strong>group 1</strong> – 2025Q1</h2>
+<div id="1d3404ef" class="cell" data-execution_count="11">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final_report_word_files/figure-html/cell-12-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final_report_word_files/figure-html/cell-12-output-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>NQ (MOM) – 2025Q1:</strong> Modest positive quarter. Momentum edge is present but smaller than in the strongest trend regimes; net still benefits from periods of sustained movement.</p>
+<p><strong>SP (MR) – 2025Q1:</strong> Very strong quarter for mean‑reversion. The equity profile indicates frequent, profitable reversals where the strategy can scale gains beyond the cost drag.</p>
+</section>
+<section id="equity-line-for-group-1-2025q2" class="level2">
+<h2 class="anchored" data-anchor-id="equity-line-for-group-1-2025q2">Equity line for <strong>group 1</strong> – 2025Q2</h2>
+<div id="89270656" class="cell" data-execution_count="12">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final_report_word_files/figure-html/cell-13-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final_report_word_files/figure-html/cell-13-output-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>NQ (MOM) – 2025Q2:</strong> Positive but lower-edge quarter: the net curve rises more gradually and shows sensitivity to transaction costs during sideways stretches.</p>
+<p><strong>SP (MR) – 2025Q2:</strong> Strong quarter again; the mean‑reversion leg remains the dominant contributor with a relatively stable net trajectory.</p>
+</section>
+<section id="equity-line-for-group-1-2025q3" class="level2">
+<h2 class="anchored" data-anchor-id="equity-line-for-group-1-2025q3">Equity line for <strong>group 1</strong> – 2025Q3</h2>
+<p><strong>Comment:</strong> 2025Q3 was not included in the current Group 1 evaluation run/output set.</p>
+</section>
+<section id="equity-line-for-group-1-2025q4" class="level2">
+<h2 class="anchored" data-anchor-id="equity-line-for-group-1-2025q4">Equity line for <strong>group 1</strong> – 2025Q4</h2>
+<p><strong>Comment:</strong> 2025Q4 was not included in the current Group 1 evaluation run/output set.</p>
+</section>
+</section>
+<section id="group-2" class="level1">
+<h1>Group 2</h1>
+<section id="approaches-undertaken-1" class="level2">
+<h2 class="anchored" data-anchor-id="approaches-undertaken-1">Approaches undertaken</h2>
+<p>For Group 2 <strong>(Gold - XAU, Silver - XAG)</strong>, we faced different challenges compared to Group 1: specific trading hours (Sunday-Friday), a daily break (17:00-18:00 CET), and significantly higher fixed transaction costs ($10/$15) relative to tick value. We tested two primary logic families on 5-minute data.</p>
+</section>
+<section id="strategies-considered" class="level2">
+<h2 class="anchored" data-anchor-id="strategies-considered">Strategies considered</h2>
+<p><strong>Strategy 1 - Volatility Breakout</strong></p>
+<ul>
+<li><strong>Signal:</strong> We adapted the Donchian Channel logic for close-only data.</li>
+<li><strong>Entry:</strong>
+<ul>
+<li>Enter Long if <span class="math inline">\(Close_t &gt; Max(Close_{t-1}...Close_{t-n})\)</span>.</li>
+<li>Enter Short if <span class="math inline">\(Close_t &lt; Min(Close_{t-1}...Close_{t-n})\)</span>.</li>
+</ul></li>
+<li><strong>Volatility Filter:</strong> Trades are only taken if the rolling standard deviation of price changes exceeds a threshold (<code>vol_threshold</code>). This prevents trading during “dead” markets where the fixed transaction cost would exceed potential profit.</li>
+<li><strong>Regime Filter (Session):</strong> We tested applying the strategy <strong>24 hours</strong> vs.&nbsp;<strong>US Session Only</strong> (13:00–16:30 CET).</li>
+</ul>
+<p><strong>Strategy 2 - EMA Crossover + RSI</strong></p>
+<ul>
+<li><strong>Signal:</strong> Standard Fast/Slow EMA crossover.</li>
+<li><strong>Filter:</strong> RSI (Relative Strength Index) was added to filter out overextended moves.
+<ul>
+<li><em>Long Rule:</em> Fast &gt; Slow AND RSI &lt; 70 (Not Overbought).</li>
+<li><em>Short Rule:</em> Fast &lt; Slow AND RSI &gt; 30 (Not Oversold).</li>
+</ul></li>
+<li><strong>Hypothesis:</strong> We tested if smoothing the noisy 5-minute data with EMAs would reduce the “whipsaw” effect seen in precious metals.</li>
+</ul>
+</section>
+<section id="assumptions-execution-rules" class="level2">
+<h2 class="anchored" data-anchor-id="assumptions-execution-rules">Assumptions / execution rules</h2>
+<ul>
+<li><strong>Timezone Management:</strong> All data was converted from UTC to CET to strictly adhere to the project’s time-specific rules.</li>
+<li><strong>Forced Exits:</strong> All positions are flattened daily at 16:50 CET. No trading occurs during the break (17:00–18:00) or the first 10 minutes after re-open (18:00–18:10).</li>
+<li><strong>Transaction Costs:</strong> We applied $15 per trade for Gold and $10 per trade for Silver.</li>
+</ul>
+</section>
+<section id="parameter-search-selection" class="level2">
+<h2 class="anchored" data-anchor-id="parameter-search-selection">Parameter search &amp; selection</h2>
+<ol type="1">
+<li><strong>Global Optimization:</strong> Unlike Group 1, we performed a cross-product grid search. We tested every combination of Gold parameters against every combination of Silver parameters to find the best portfolio score, rather than optimizing assets in isolation.</li>
+<li><strong>Grid Space:</strong>
+<ul>
+<li><code>Window</code> (Lookback): [24, 48, …, 288 (24 hours)]</li>
+<li><code>Vol_Threshold</code>: [0.03, 0.05, …, 1.5]</li>
+<li><code>Session</code>: [‘Full’, ‘US_Only’]</li>
+</ul></li>
+<li><strong>Selection Criterion:</strong> Maximizing the sum of the project statistic across all in-sample quarters.</li>
+</ol>
+</section>
+<section id="finally-selected-strategy" class="level2">
+<h2 class="anchored" data-anchor-id="finally-selected-strategy">Finally selected strategy</h2>
+<p><strong>Hybrid Volatility Breakout</strong></p>
+<p>Based on the in-sample optimization, the Breakout logic significantly outperformed the EMA approach (which suffered from lag and high turnover costs). The final selected portfolio is “Hybrid” because it applies different time-regimes to each metal:</p>
+<ul>
+<li><strong>Gold (XAU):</strong>
+<ul>
+<li><strong>Parameters:</strong> <code>Window=288</code> (24 hours), <code>Vol_Threshold=0.5</code>, <code>Session=Full</code>.</li>
+<li><em>Logic:</em> Gold has deep global liquidity. A 24-hour lookback filters intraday noise, allowing the strategy to capture major macro trends overnight.</li>
+</ul></li>
+<li><strong>Silver (XAG):</strong>
+<ul>
+<li><strong>Parameters:</strong> <code>Window=144</code> (12 hours), <code>Vol_Threshold=0.05</code>, <code>Session=US_Only</code>.</li>
+<li><em>Logic:</em> Silver is noisier. By restricting new entries to the US Session (13:00–16:30 CET), we avoid false signals during low-volume European mornings.</li>
+</ul></li>
+</ul>
+</section>
+<section id="summary-of-results" class="level2 scrollable">
+<h2 class="scrollable anchored" data-anchor-id="summary-of-results">Summary of results</h2>
+<div id="a2e4fc63" class="cell" data-execution_count="16">
+<div class="cell-output cell-output-display">
+<style type="text/css">
+#T_dde04 th {
+  font-size: 10px;
+}
+#T_dde04 td {
+  font-size: 10px;
+}
+#T_dde04_row0_col0, #T_dde04_row0_col1, #T_dde04_row0_col2, #T_dde04_row0_col3, #T_dde04_row0_col4, #T_dde04_row0_col5, #T_dde04_row0_col6, #T_dde04_row0_col7, #T_dde04_row0_col8, #T_dde04_row0_col9, #T_dde04_row1_col0, #T_dde04_row1_col1, #T_dde04_row1_col2, #T_dde04_row1_col3, #T_dde04_row1_col4, #T_dde04_row1_col5, #T_dde04_row1_col6, #T_dde04_row1_col7, #T_dde04_row1_col8, #T_dde04_row1_col9, #T_dde04_row2_col0, #T_dde04_row2_col1, #T_dde04_row2_col2, #T_dde04_row2_col3, #T_dde04_row2_col4, #T_dde04_row2_col5, #T_dde04_row2_col6, #T_dde04_row2_col7, #T_dde04_row2_col8, #T_dde04_row2_col9, #T_dde04_row3_col0, #T_dde04_row3_col1, #T_dde04_row3_col2, #T_dde04_row3_col3, #T_dde04_row3_col4, #T_dde04_row3_col5, #T_dde04_row3_col6, #T_dde04_row3_col7, #T_dde04_row3_col8, #T_dde04_row3_col9, #T_dde04_row4_col0, #T_dde04_row4_col1, #T_dde04_row4_col2, #T_dde04_row4_col3, #T_dde04_row4_col4, #T_dde04_row4_col5, #T_dde04_row4_col6, #T_dde04_row4_col7, #T_dde04_row4_col8, #T_dde04_row4_col9, #T_dde04_row5_col0, #T_dde04_row5_col1, #T_dde04_row5_col2, #T_dde04_row5_col3, #T_dde04_row5_col4, #T_dde04_row5_col5, #T_dde04_row5_col6, #T_dde04_row5_col7, #T_dde04_row5_col8, #T_dde04_row5_col9, #T_dde04_row6_col0, #T_dde04_row6_col1, #T_dde04_row6_col2, #T_dde04_row6_col3, #T_dde04_row6_col4, #T_dde04_row6_col5, #T_dde04_row6_col6, #T_dde04_row6_col7, #T_dde04_row6_col8, #T_dde04_row6_col9, #T_dde04_row7_col0, #T_dde04_row7_col1, #T_dde04_row7_col2, #T_dde04_row7_col3, #T_dde04_row7_col4, #T_dde04_row7_col5, #T_dde04_row7_col6, #T_dde04_row7_col7, #T_dde04_row7_col8, #T_dde04_row7_col9, #T_dde04_row8_col0, #T_dde04_row8_col1, #T_dde04_row8_col2, #T_dde04_row8_col3, #T_dde04_row8_col4, #T_dde04_row8_col5, #T_dde04_row8_col6, #T_dde04_row8_col7, #T_dde04_row8_col8, #T_dde04_row8_col9, #T_dde04_row9_col0, #T_dde04_row9_col1, #T_dde04_row9_col2, #T_dde04_row9_col3, #T_dde04_row9_col4, #T_dde04_row9_col5, #T_dde04_row9_col6, #T_dde04_row9_col7, #T_dde04_row9_col8, #T_dde04_row9_col9, #T_dde04_row10_col0, #T_dde04_row10_col1, #T_dde04_row10_col2, #T_dde04_row10_col3, #T_dde04_row10_col4, #T_dde04_row10_col5, #T_dde04_row10_col6, #T_dde04_row10_col7, #T_dde04_row10_col8, #T_dde04_row10_col9, #T_dde04_row11_col0, #T_dde04_row11_col1, #T_dde04_row11_col2, #T_dde04_row11_col3, #T_dde04_row11_col4, #T_dde04_row11_col5, #T_dde04_row11_col6, #T_dde04_row11_col7, #T_dde04_row11_col8, #T_dde04_row11_col9, #T_dde04_row12_col0, #T_dde04_row12_col1, #T_dde04_row12_col2, #T_dde04_row12_col3, #T_dde04_row12_col4, #T_dde04_row12_col5, #T_dde04_row12_col6, #T_dde04_row12_col7, #T_dde04_row12_col8, #T_dde04_row12_col9, #T_dde04_row13_col0, #T_dde04_row13_col1, #T_dde04_row13_col2, #T_dde04_row13_col3, #T_dde04_row13_col4, #T_dde04_row13_col5, #T_dde04_row13_col6, #T_dde04_row13_col7, #T_dde04_row13_col8, #T_dde04_row13_col9, #T_dde04_row14_col0, #T_dde04_row14_col1, #T_dde04_row14_col2, #T_dde04_row14_col3, #T_dde04_row14_col4, #T_dde04_row14_col5, #T_dde04_row14_col6, #T_dde04_row14_col7, #T_dde04_row14_col8, #T_dde04_row14_col9, #T_dde04_row15_col0, #T_dde04_row15_col1, #T_dde04_row15_col2, #T_dde04_row15_col3, #T_dde04_row15_col4, #T_dde04_row15_col5, #T_dde04_row15_col6, #T_dde04_row15_col7, #T_dde04_row15_col8, #T_dde04_row15_col9, #T_dde04_row16_col0, #T_dde04_row16_col1, #T_dde04_row16_col2, #T_dde04_row16_col3, #T_dde04_row16_col4, #T_dde04_row16_col5, #T_dde04_row16_col6, #T_dde04_row16_col7, #T_dde04_row16_col8, #T_dde04_row16_col9, #T_dde04_row17_col0, #T_dde04_row17_col1, #T_dde04_row17_col2, #T_dde04_row17_col3, #T_dde04_row17_col4, #T_dde04_row17_col5, #T_dde04_row17_col6, #T_dde04_row17_col7, #T_dde04_row17_col8, #T_dde04_row17_col9, #T_dde04_row18_col0, #T_dde04_row18_col1, #T_dde04_row18_col2, #T_dde04_row18_col3, #T_dde04_row18_col4, #T_dde04_row18_col5, #T_dde04_row18_col6, #T_dde04_row18_col7, #T_dde04_row18_col8, #T_dde04_row18_col9, #T_dde04_row19_col0, #T_dde04_row19_col1, #T_dde04_row19_col2, #T_dde04_row19_col3, #T_dde04_row19_col4, #T_dde04_row19_col5, #T_dde04_row19_col6, #T_dde04_row19_col7, #T_dde04_row19_col8, #T_dde04_row19_col9, #T_dde04_row20_col0, #T_dde04_row20_col1, #T_dde04_row20_col2, #T_dde04_row20_col3, #T_dde04_row20_col4, #T_dde04_row20_col5, #T_dde04_row20_col6, #T_dde04_row20_col7, #T_dde04_row20_col8, #T_dde04_row20_col9, #T_dde04_row21_col0, #T_dde04_row21_col1, #T_dde04_row21_col2, #T_dde04_row21_col3, #T_dde04_row21_col4, #T_dde04_row21_col5, #T_dde04_row21_col6, #T_dde04_row21_col7, #T_dde04_row21_col8, #T_dde04_row21_col9, #T_dde04_row22_col0, #T_dde04_row22_col1, #T_dde04_row22_col2, #T_dde04_row22_col3, #T_dde04_row22_col4, #T_dde04_row22_col5, #T_dde04_row22_col6, #T_dde04_row22_col7, #T_dde04_row22_col8, #T_dde04_row22_col9, #T_dde04_row23_col0, #T_dde04_row23_col1, #T_dde04_row23_col2, #T_dde04_row23_col3, #T_dde04_row23_col4, #T_dde04_row23_col5, #T_dde04_row23_col6, #T_dde04_row23_col7, #T_dde04_row23_col8, #T_dde04_row23_col9 {
+  text-align: right;
+}
+</style>
+
+<table id="T_dde04" class="caption-top table table-sm table-striped small" data-quarto-postprocess="true">
+<thead>
+<tr class="header">
+<th id="T_dde04_level0_col0" class="col_heading level0 col0" data-quarto-table-cell-role="th">quarter</th>
+<th id="T_dde04_level0_col1" class="col_heading level0 col1" data-quarto-table-cell-role="th">sym</th>
+<th id="T_dde04_level0_col2" class="col_heading level0 col2" data-quarto-table-cell-role="th">gross_SR</th>
+<th id="T_dde04_level0_col3" class="col_heading level0 col3" data-quarto-table-cell-role="th">net_SR</th>
+<th id="T_dde04_level0_col4" class="col_heading level0 col4" data-quarto-table-cell-role="th">gross_PnL</th>
+<th id="T_dde04_level0_col5" class="col_heading level0 col5" data-quarto-table-cell-role="th">net_PnL</th>
+<th id="T_dde04_level0_col6" class="col_heading level0 col6" data-quarto-table-cell-role="th">gross_CR</th>
+<th id="T_dde04_level0_col7" class="col_heading level0 col7" data-quarto-table-cell-role="th">net_CR</th>
+<th id="T_dde04_level0_col8" class="col_heading level0 col8" data-quarto-table-cell-role="th">av_daily_ntrans</th>
+<th id="T_dde04_level0_col9" class="col_heading level0 col9" data-quarto-table-cell-role="th">stat</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td id="T_dde04_row0_col0" class="data row0 col0">2023_Q1</td>
+<td id="T_dde04_row0_col1" class="data row0 col1">XAG</td>
+<td id="T_dde04_row0_col2" class="data row0 col2">nan</td>
+<td id="T_dde04_row0_col3" class="data row0 col3">nan</td>
+<td id="T_dde04_row0_col4" class="data row0 col4">0.00</td>
+<td id="T_dde04_row0_col5" class="data row0 col5">0.00</td>
+<td id="T_dde04_row0_col6" class="data row0 col6">nan</td>
+<td id="T_dde04_row0_col7" class="data row0 col7">nan</td>
+<td id="T_dde04_row0_col8" class="data row0 col8">0.00</td>
+<td id="T_dde04_row0_col9" class="data row0 col9">nan</td>
+</tr>
+<tr class="even">
+<td id="T_dde04_row1_col0" class="data row1 col0">2023_Q1</td>
+<td id="T_dde04_row1_col1" class="data row1 col1">XAU</td>
+<td id="T_dde04_row1_col2" class="data row1 col2">0.09</td>
+<td id="T_dde04_row1_col3" class="data row1 col3">-0.19</td>
+<td id="T_dde04_row1_col4" class="data row1 col4">659.80</td>
+<td id="T_dde04_row1_col5" class="data row1 col5">-1470.20</td>
+<td id="T_dde04_row1_col6" class="data row1 col6">0.16</td>
+<td id="T_dde04_row1_col7" class="data row1 col7">-0.32</td>
+<td id="T_dde04_row1_col8" class="data row1 col8">1.60</td>
+<td id="T_dde04_row1_col9" class="data row1 col9">-0.27</td>
+</tr>
+<tr class="odd">
+<td id="T_dde04_row2_col0" class="data row2 col0">2023_Q2</td>
+<td id="T_dde04_row2_col1" class="data row2 col1">XAG</td>
+<td id="T_dde04_row2_col2" class="data row2 col2">-0.20</td>
+<td id="T_dde04_row2_col3" class="data row2 col3">-0.30</td>
+<td id="T_dde04_row2_col4" class="data row2 col4">-80.00</td>
+<td id="T_dde04_row2_col5" class="data row2 col5">-120.00</td>
+<td id="T_dde04_row2_col6" class="data row2 col6">-0.65</td>
+<td id="T_dde04_row2_col7" class="data row2 col7">-0.94</td>
+<td id="T_dde04_row2_col8" class="data row2 col8">0.04</td>
+<td id="T_dde04_row2_col9" class="data row2 col9">-0.00</td>
+</tr>
+<tr class="even">
+<td id="T_dde04_row3_col0" class="data row3 col0">2023_Q2</td>
+<td id="T_dde04_row3_col1" class="data row3 col1">XAU</td>
+<td id="T_dde04_row3_col2" class="data row3 col2">-1.80</td>
+<td id="T_dde04_row3_col3" class="data row3 col3">-2.17</td>
+<td id="T_dde04_row3_col4" class="data row3 col4">-9694.90</td>
+<td id="T_dde04_row3_col5" class="data row3 col5">-11749.90</td>
+<td id="T_dde04_row3_col6" class="data row3 col6">-2.88</td>
+<td id="T_dde04_row3_col7" class="data row3 col7">-3.09</td>
+<td id="T_dde04_row3_col8" class="data row3 col8">1.54</td>
+<td id="T_dde04_row3_col9" class="data row3 col9">-6.58</td>
+</tr>
+<tr class="odd">
+<td id="T_dde04_row4_col0" class="data row4 col0">2023_Q3</td>
+<td id="T_dde04_row4_col1" class="data row4 col1">XAG</td>
+<td id="T_dde04_row4_col2" class="data row4 col2">1.69</td>
+<td id="T_dde04_row4_col3" class="data row4 col3">1.69</td>
+<td id="T_dde04_row4_col4" class="data row4 col4">2225.00</td>
+<td id="T_dde04_row4_col5" class="data row4 col5">2205.00</td>
+<td id="T_dde04_row4_col6" class="data row4 col6">nan</td>
+<td id="T_dde04_row4_col7" class="data row4 col7">nan</td>
+<td id="T_dde04_row4_col8" class="data row4 col8">0.02</td>
+<td id="T_dde04_row4_col9" class="data row4 col9">0.94</td>
+</tr>
+<tr class="even">
+<td id="T_dde04_row5_col0" class="data row5 col0">2023_Q3</td>
+<td id="T_dde04_row5_col1" class="data row5 col1">XAU</td>
+<td id="T_dde04_row5_col2" class="data row5 col2">1.61</td>
+<td id="T_dde04_row5_col3" class="data row5 col3">1.08</td>
+<td id="T_dde04_row5_col4" class="data row5 col4">4973.60</td>
+<td id="T_dde04_row5_col5" class="data row5 col5">3353.60</td>
+<td id="T_dde04_row5_col6" class="data row5 col6">4.82</td>
+<td id="T_dde04_row5_col7" class="data row5 col7">2.94</td>
+<td id="T_dde04_row5_col8" class="data row5 col8">1.21</td>
+<td id="T_dde04_row5_col9" class="data row5 col9">0.70</td>
+</tr>
+<tr class="odd">
+<td id="T_dde04_row6_col0" class="data row6 col0">2023_Q4</td>
+<td id="T_dde04_row6_col1" class="data row6 col1">XAG</td>
+<td id="T_dde04_row6_col2" class="data row6 col2">2.40</td>
+<td id="T_dde04_row6_col3" class="data row6 col3">2.39</td>
+<td id="T_dde04_row6_col4" class="data row6 col4">1405.00</td>
+<td id="T_dde04_row6_col5" class="data row6 col5">1365.00</td>
+<td id="T_dde04_row6_col6" class="data row6 col6">nan</td>
+<td id="T_dde04_row6_col7" class="data row6 col7">nan</td>
+<td id="T_dde04_row6_col8" class="data row6 col8">0.04</td>
+<td id="T_dde04_row6_col9" class="data row6 col9">0.59</td>
+</tr>
+<tr class="even">
+<td id="T_dde04_row7_col0" class="data row7 col0">2023_Q4</td>
+<td id="T_dde04_row7_col1" class="data row7 col1">XAU</td>
+<td id="T_dde04_row7_col2" class="data row7 col2">2.07</td>
+<td id="T_dde04_row7_col3" class="data row7 col3">1.72</td>
+<td id="T_dde04_row7_col4" class="data row7 col4">11856.90</td>
+<td id="T_dde04_row7_col5" class="data row7 col5">9876.90</td>
+<td id="T_dde04_row7_col6" class="data row7 col6">7.59</td>
+<td id="T_dde04_row7_col7" class="data row7 col7">6.19</td>
+<td id="T_dde04_row7_col8" class="data row7 col8">1.48</td>
+<td id="T_dde04_row7_col9" class="data row7 col9">2.79</td>
+</tr>
+<tr class="odd">
+<td id="T_dde04_row8_col0" class="data row8 col0">2024_Q1</td>
+<td id="T_dde04_row8_col1" class="data row8 col1">XAG</td>
+<td id="T_dde04_row8_col2" class="data row8 col2">1.67</td>
+<td id="T_dde04_row8_col3" class="data row8 col3">1.67</td>
+<td id="T_dde04_row8_col4" class="data row8 col4">655.00</td>
+<td id="T_dde04_row8_col5" class="data row8 col5">635.00</td>
+<td id="T_dde04_row8_col6" class="data row8 col6">nan</td>
+<td id="T_dde04_row8_col7" class="data row8 col7">nan</td>
+<td id="T_dde04_row8_col8" class="data row8 col8">0.02</td>
+<td id="T_dde04_row8_col9" class="data row8 col9">0.00</td>
+</tr>
+<tr class="even">
+<td id="T_dde04_row9_col0" class="data row9 col0">2024_Q1</td>
+<td id="T_dde04_row9_col1" class="data row9 col1">XAU</td>
+<td id="T_dde04_row9_col2" class="data row9 col2">-0.50</td>
+<td id="T_dde04_row9_col3" class="data row9 col3">-0.82</td>
+<td id="T_dde04_row9_col4" class="data row9 col4">-3229.20</td>
+<td id="T_dde04_row9_col5" class="data row9 col5">-5269.20</td>
+<td id="T_dde04_row9_col6" class="data row9 col6">-1.27</td>
+<td id="T_dde04_row9_col7" class="data row9 col7">-1.85</td>
+<td id="T_dde04_row9_col8" class="data row9 col8">1.49</td>
+<td id="T_dde04_row9_col9" class="data row9 col9">-2.19</td>
+</tr>
+<tr class="odd">
+<td id="T_dde04_row10_col0" class="data row10 col0">2024_Q2</td>
+<td id="T_dde04_row10_col1" class="data row10 col1">XAG</td>
+<td id="T_dde04_row10_col2" class="data row10 col2">1.98</td>
+<td id="T_dde04_row10_col3" class="data row10 col3">1.90</td>
+<td id="T_dde04_row10_col4" class="data row10 col4">6355.00</td>
+<td id="T_dde04_row10_col5" class="data row10 col5">6095.00</td>
+<td id="T_dde04_row10_col6" class="data row10 col6">5.49</td>
+<td id="T_dde04_row10_col7" class="data row10 col7">5.18</td>
+<td id="T_dde04_row10_col8" class="data row10 col8">0.29</td>
+<td id="T_dde04_row10_col9" class="data row10 col9">2.53</td>
+</tr>
+<tr class="even">
+<td id="T_dde04_row11_col0" class="data row11 col0">2024_Q2</td>
+<td id="T_dde04_row11_col1" class="data row11 col1">XAU</td>
+<td id="T_dde04_row11_col2" class="data row11 col2">-0.29</td>
+<td id="T_dde04_row11_col3" class="data row11 col3">-0.54</td>
+<td id="T_dde04_row11_col4" class="data row11 col4">-2758.00</td>
+<td id="T_dde04_row11_col5" class="data row11 col5">-5158.00</td>
+<td id="T_dde04_row11_col6" class="data row11 col6">-0.54</td>
+<td id="T_dde04_row11_col7" class="data row11 col7">-0.98</td>
+<td id="T_dde04_row11_col8" class="data row11 col8">1.76</td>
+<td id="T_dde04_row11_col9" class="data row11 col9">-1.71</td>
+</tr>
+<tr class="odd">
+<td id="T_dde04_row12_col0" class="data row12 col0">2024_Q3</td>
+<td id="T_dde04_row12_col1" class="data row12 col1">XAG</td>
+<td id="T_dde04_row12_col2" class="data row12 col2">1.30</td>
+<td id="T_dde04_row12_col3" class="data row12 col3">1.23</td>
+<td id="T_dde04_row12_col4" class="data row12 col4">4065.00</td>
+<td id="T_dde04_row12_col5" class="data row12 col5">3825.00</td>
+<td id="T_dde04_row12_col6" class="data row12 col6">6.55</td>
+<td id="T_dde04_row12_col7" class="data row12 col7">6.07</td>
+<td id="T_dde04_row12_col8" class="data row12 col8">0.26</td>
+<td id="T_dde04_row12_col9" class="data row12 col9">0.97</td>
+</tr>
+<tr class="even">
+<td id="T_dde04_row13_col0" class="data row13 col0">2024_Q3</td>
+<td id="T_dde04_row13_col1" class="data row13 col1">XAU</td>
+<td id="T_dde04_row13_col2" class="data row13 col2">2.86</td>
+<td id="T_dde04_row13_col3" class="data row13 col3">2.59</td>
+<td id="T_dde04_row13_col4" class="data row13 col4">22526.80</td>
+<td id="T_dde04_row13_col5" class="data row13 col5">20366.80</td>
+<td id="T_dde04_row13_col6" class="data row13 col6">14.89</td>
+<td id="T_dde04_row13_col7" class="data row13 col7">11.88</td>
+<td id="T_dde04_row13_col8" class="data row13 col8">1.57</td>
+<td id="T_dde04_row13_col9" class="data row13 col9">6.28</td>
+</tr>
+<tr class="odd">
+<td id="T_dde04_row14_col0" class="data row14 col0">2024_Q4</td>
+<td id="T_dde04_row14_col1" class="data row14 col1">XAG</td>
+<td id="T_dde04_row14_col2" class="data row14 col2">-1.03</td>
+<td id="T_dde04_row14_col3" class="data row14 col3">-1.11</td>
+<td id="T_dde04_row14_col4" class="data row14 col4">-1740.00</td>
+<td id="T_dde04_row14_col5" class="data row14 col5">-1880.00</td>
+<td id="T_dde04_row14_col6" class="data row14 col6">-1.98</td>
+<td id="T_dde04_row14_col7" class="data row14 col7">-2.07</td>
+<td id="T_dde04_row14_col8" class="data row14 col8">0.15</td>
+<td id="T_dde04_row14_col9" class="data row14 col9">-1.02</td>
+</tr>
+<tr class="even">
+<td id="T_dde04_row15_col0" class="data row15 col0">2024_Q4</td>
+<td id="T_dde04_row15_col1" class="data row15 col1">XAU</td>
+<td id="T_dde04_row15_col2" class="data row15 col2">3.43</td>
+<td id="T_dde04_row15_col3" class="data row15 col3">3.19</td>
+<td id="T_dde04_row15_col4" class="data row15 col4">29483.30</td>
+<td id="T_dde04_row15_col5" class="data row15 col5">27443.30</td>
+<td id="T_dde04_row15_col6" class="data row15 col6">13.45</td>
+<td id="T_dde04_row15_col7" class="data row15 col7">12.03</td>
+<td id="T_dde04_row15_col8" class="data row15 col8">1.49</td>
+<td id="T_dde04_row15_col9" class="data row15 col9">8.91</td>
+</tr>
+<tr class="odd">
+<td id="T_dde04_row16_col0" class="data row16 col0">2025_Q1</td>
+<td id="T_dde04_row16_col1" class="data row16 col1">XAG</td>
+<td id="T_dde04_row16_col2" class="data row16 col2">-0.11</td>
+<td id="T_dde04_row16_col3" class="data row16 col3">-0.16</td>
+<td id="T_dde04_row16_col4" class="data row16 col4">-90.00</td>
+<td id="T_dde04_row16_col5" class="data row16 col5">-130.00</td>
+<td id="T_dde04_row16_col6" class="data row16 col6">-0.37</td>
+<td id="T_dde04_row16_col7" class="data row16 col7">-0.53</td>
+<td id="T_dde04_row16_col8" class="data row16 col8">0.04</td>
+<td id="T_dde04_row16_col9" class="data row16 col9">-0.00</td>
+</tr>
+<tr class="even">
+<td id="T_dde04_row17_col0" class="data row17 col0">2025_Q1</td>
+<td id="T_dde04_row17_col1" class="data row17 col1">XAU</td>
+<td id="T_dde04_row17_col2" class="data row17 col2">2.35</td>
+<td id="T_dde04_row17_col3" class="data row17 col3">2.10</td>
+<td id="T_dde04_row17_col4" class="data row17 col4">20719.00</td>
+<td id="T_dde04_row17_col5" class="data row17 col5">18544.00</td>
+<td id="T_dde04_row17_col6" class="data row17 col6">10.05</td>
+<td id="T_dde04_row17_col7" class="data row17 col7">8.60</td>
+<td id="T_dde04_row17_col8" class="data row17 col8">1.61</td>
+<td id="T_dde04_row17_col9" class="data row17 col9">4.68</td>
+</tr>
+<tr class="odd">
+<td id="T_dde04_row18_col0" class="data row18 col0">2025_Q2</td>
+<td id="T_dde04_row18_col1" class="data row18 col1">XAG</td>
+<td id="T_dde04_row18_col2" class="data row18 col2">-0.72</td>
+<td id="T_dde04_row18_col3" class="data row18 col3">-0.86</td>
+<td id="T_dde04_row18_col4" class="data row18 col4">-580.00</td>
+<td id="T_dde04_row18_col5" class="data row18 col5">-700.00</td>
+<td id="T_dde04_row18_col6" class="data row18 col6">-2.66</td>
+<td id="T_dde04_row18_col7" class="data row18 col7">-3.07</td>
+<td id="T_dde04_row18_col8" class="data row18 col8">0.13</td>
+<td id="T_dde04_row18_col9" class="data row18 col9">-0.00</td>
+</tr>
+<tr class="even">
+<td id="T_dde04_row19_col0" class="data row19 col0">2025_Q2</td>
+<td id="T_dde04_row19_col1" class="data row19 col1">XAU</td>
+<td id="T_dde04_row19_col2" class="data row19 col2">0.67</td>
+<td id="T_dde04_row19_col3" class="data row19 col3">0.55</td>
+<td id="T_dde04_row19_col4" class="data row19 col4">12753.10</td>
+<td id="T_dde04_row19_col5" class="data row19 col5">10443.10</td>
+<td id="T_dde04_row19_col6" class="data row19 col6">2.30</td>
+<td id="T_dde04_row19_col7" class="data row19 col7">1.79</td>
+<td id="T_dde04_row19_col8" class="data row19 col8">1.69</td>
+<td id="T_dde04_row19_col9" class="data row19 col9">0.11</td>
+</tr>
+<tr class="odd">
+<td id="T_dde04_row20_col0" class="data row20 col0">2025_Q3</td>
+<td id="T_dde04_row20_col1" class="data row20 col1">XAG</td>
+<td id="T_dde04_row20_col2" class="data row20 col2">0.16</td>
+<td id="T_dde04_row20_col3" class="data row20 col3">0.06</td>
+<td id="T_dde04_row20_col4" class="data row20 col4">280.00</td>
+<td id="T_dde04_row20_col5" class="data row20 col5">100.00</td>
+<td id="T_dde04_row20_col6" class="data row20 col6">0.36</td>
+<td id="T_dde04_row20_col7" class="data row20 col7">0.13</td>
+<td id="T_dde04_row20_col8" class="data row20 col8">0.20</td>
+<td id="T_dde04_row20_col9" class="data row20 col9">-0.00</td>
+</tr>
+<tr class="even">
+<td id="T_dde04_row21_col0" class="data row21 col0">2025_Q3</td>
+<td id="T_dde04_row21_col1" class="data row21 col1">XAU</td>
+<td id="T_dde04_row21_col2" class="data row21 col2">-0.25</td>
+<td id="T_dde04_row21_col3" class="data row21 col3">-0.43</td>
+<td id="T_dde04_row21_col4" class="data row21 col4">-3306.20</td>
+<td id="T_dde04_row21_col5" class="data row21 col5">-5661.20</td>
+<td id="T_dde04_row21_col6" class="data row21 col6">-0.64</td>
+<td id="T_dde04_row21_col7" class="data row21 col7">-1.02</td>
+<td id="T_dde04_row21_col8" class="data row21 col8">1.71</td>
+<td id="T_dde04_row21_col9" class="data row21 col9">-1.62</td>
+</tr>
+<tr class="odd">
+<td id="T_dde04_row22_col0" class="data row22 col0">2025_Q4</td>
+<td id="T_dde04_row22_col1" class="data row22 col1">XAG</td>
+<td id="T_dde04_row22_col2" class="data row22 col2">1.71</td>
+<td id="T_dde04_row22_col3" class="data row22 col3">1.53</td>
+<td id="T_dde04_row22_col4" class="data row22 col4">1420.00</td>
+<td id="T_dde04_row22_col5" class="data row22 col5">1260.00</td>
+<td id="T_dde04_row22_col6" class="data row22 col6">2.87</td>
+<td id="T_dde04_row22_col7" class="data row22 col7">2.51</td>
+<td id="T_dde04_row22_col8" class="data row22 col8">0.53</td>
+<td id="T_dde04_row22_col9" class="data row22 col9">0.24</td>
+</tr>
+<tr class="even">
+<td id="T_dde04_row23_col0" class="data row23 col0">2025_Q4</td>
+<td id="T_dde04_row23_col1" class="data row23 col1">XAU</td>
+<td id="T_dde04_row23_col2" class="data row23 col2">2.53</td>
+<td id="T_dde04_row23_col3" class="data row23 col3">2.43</td>
+<td id="T_dde04_row23_col4" class="data row23 col4">21825.00</td>
+<td id="T_dde04_row23_col5" class="data row23 col5">21000.00</td>
+<td id="T_dde04_row23_col6" class="data row23 col6">5.73</td>
+<td id="T_dde04_row23_col7" class="data row23 col7">5.47</td>
+<td id="T_dde04_row23_col8" class="data row23 col8">1.83</td>
+<td id="T_dde04_row23_col9" class="data row23 col9">5.89</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>The results highlight a distinct division of labor. Gold (XAU) acts as the primary profit engine, trading frequently with a high standard deviation but capturing the largest trends. Silver (XAG) acts as a diversifier; the strict US-session filter results in very low trade frequency (often &lt; 0.2 trades/day), which preserves capital during choppy quarters while still participating in major volatility events.</p>
+</section>
+<section id="equity-lines" class="level2">
+<h2 class="anchored" data-anchor-id="equity-lines">Equity lines</h2>
+<section id="q1" class="level3">
+<h3 class="anchored" data-anchor-id="q1">2023Q1</h3>
+<div id="828993a4" class="cell" data-execution_count="17">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final_report_word_files/figure-html/cell-18-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Comment</strong>: A challenging quarter to start. The portfolio experienced a V-shaped drawdown driven by Gold’s whipsaws in February. However, the Silver strategy’s session filter worked as intended, keeping it flat and preventing the drawdown from deepening further.</p>
+</section>
+<section id="q2---out-of-sample" class="level3">
+<h3 class="anchored" data-anchor-id="q2---out-of-sample">2023Q2 - out of sample</h3>
+<div id="d8689839" class="cell" data-execution_count="18">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final_report_word_files/figure-html/cell-19-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Comment</strong>: A difficult quarter characterized by persistent chopping. The strategy entered a drawdown early in April and struggled to recover as the market lacked sustained direction. The downward drift suggests that the “breakout” logic was frequently triggered by false moves that reversed before gaining traction.</p>
+</section>
+<section id="q3" class="level3">
+<h3 class="anchored" data-anchor-id="q3">2023Q3</h3>
+<div id="a116d5f0" class="cell" data-execution_count="19">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final_report_word_files/figure-html/cell-20-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Comment</strong>: A solid recovery period. Both metals contributed positively, with the strategy successfully capturing a late-quarter trend. The net equity curve shows a steady, low-volatility climb, indicating the volatility filter successfully screened out the mid-quarter noise.</p>
+</section>
+<section id="q4" class="level3">
+<h3 class="anchored" data-anchor-id="q4">2023Q4</h3>
+<div id="6d21e0e6" class="cell" data-execution_count="20">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final_report_word_files/figure-html/cell-21-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Comment</strong>: Strong performance driven primarily by Gold. The 24-hour breakout logic allowed the portfolio to hold a long position through overnight volatility, capturing a major multi-week trend that shorter-term strategies would have exited prematurely.</p>
+</section>
+<section id="q1---out-of-sample" class="level3">
+<h3 class="anchored" data-anchor-id="q1---out-of-sample">2024Q1 - out of sample</h3>
+<div id="db4fa45e" class="cell" data-execution_count="21">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final_report_word_files/figure-html/cell-22-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Comment</strong>: The quarter began with a drawdown in January and February, consistent with low-volatility consolidation. However, a strong recovery trend emerged in March, allowing the strategy to claw back losses and finish the quarter with a significantly improved equity curve, validating the “hold for the big move” philosophy.</p>
+</section>
+<section id="q2" class="level3">
+<h3 class="anchored" data-anchor-id="q2">2024Q2</h3>
+<div id="94dcf686" class="cell" data-execution_count="22">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final_report_word_files/figure-html/cell-23-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Comment</strong>: A prime example of portfolio synergy. While Gold struggled with choppy price action (resulting in a drawdown), Silver decoupled and generated significant profit during the US session windows, effectively stabilizing the portfolio’s overall Net PnL.</p>
+</section>
+<section id="q3---out-of-sample" class="level3">
+<h3 class="anchored" data-anchor-id="q3---out-of-sample">2024Q3 - out of sample</h3>
+<div id="76b9838e" class="cell" data-execution_count="23">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final_report_word_files/figure-html/cell-24-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Comment</strong>: After a slow start in July, the portfolio captured a clean, sustained uptrend beginning in August. The steady upward slope with minimal retracement indicates a high-quality trend where both the entry logic and the volatility filter were perfectly aligned with market conditions.</p>
+</section>
+<section id="q4-1" class="level3">
+<h3 class="anchored" data-anchor-id="q4-1">2024Q4</h3>
+<div id="6b26fddb" class="cell" data-execution_count="24">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final_report_word_files/figure-html/cell-25-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Comment</strong>: Exceptional performance (Highest PnL). The portfolio capitalized on a massive, unidirectional trend in Gold. The gap between Gross and Net PnL is minimal here, proving that the strategy’s wide windows (288 bars) successfully minimize turnover costs during strong trending regimes.</p>
+</section>
+<section id="q1-1" class="level3">
+<h3 class="anchored" data-anchor-id="q1-1">2025Q1</h3>
+<div id="282c853a" class="cell" data-execution_count="25">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final_report_word_files/figure-html/cell-26-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Comment</strong>: A highly profitable but volatile quarter. After a strong initial trend in January, the strategy experienced a drawdown during a February correction, giving back open profits. However, the system successfully identified the trend resumption in March, recovering all losses and finishing the quarter near equity highs.</p>
+</section>
+<section id="q2-1" class="level3">
+<h3 class="anchored" data-anchor-id="q2-1">2025Q2</h3>
+<div id="380dafd0" class="cell" data-execution_count="26">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final_report_word_files/figure-html/cell-27-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Comment</strong>: Profitable but volatile. The strategy captured early gains but gave back profits during a late-quarter reversal. The system correctly adhered to stops, preventing a catastrophic reversal, though the Sharpe ratio was impacted by the late volatility.</p>
+</section>
+<section id="q3---out-of-sample-1" class="level3">
+<h3 class="anchored" data-anchor-id="q3---out-of-sample-1">2025Q3 - out of sample</h3>
+<div id="66aaf605" class="cell" data-execution_count="27">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final_report_word_files/figure-html/cell-28-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Comment</strong>: A challenging, volatile period. The equity curve shows significant two-way action, with a deep drawdown in mid-August followed by a sharp recovery in late September. While the quarter ended negative, the late-stage recovery demonstrates the strategy’s ability to react quickly when volatility returns.</p>
+</section>
+<section id="q4---out-of-sample" class="level3">
+<h3 class="anchored" data-anchor-id="q4---out-of-sample">2025Q4 - out of sample</h3>
+<div id="ea3bb98b" class="cell" data-execution_count="28">
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="final_report_word_files/figure-html/cell-29-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>Comment</strong> This quarter behaved similarly to 2024 Q4, with an immediate and sustained explosive trend. The strategy entered early in October and rode the momentum through the entire month, generating substantial profits ($22k+) with very little drawdown, proving the robustness of the logic in strong bull markets.</p>
+</section>
+</section>
+</section>
+<section id="summary-and-conclusions" class="level1">
+<h1>Summary and conclusions</h1>
+<section id="group-1-1" class="level2">
+<h2 class="anchored" data-anchor-id="group-1-1">Group 1</h2>
+<p>Across the evaluated quarters, the Group 1 strategy demonstrates a clear <strong>regime split</strong>: the NQ momentum breakout performs best when trends persist, while the SP mean‑reversion component performs best when prices oscillate around the slow EMA center. This pairing reduces reliance on a single market condition and produces a more balanced behavior than applying one style universally. However, the gross-to-net differences show that <strong>cost assumptions are a key sensitivity</strong>, especially in lower-edge quarters when turnover remains non-trivial. Overall, we consider the strategy to be <strong>interpretable and economically plausible</strong> on Group 1, provided that risk limits (drawdown control) and realistic execution/cost modeling are enforced.</p>
+</section>
+<section id="group-2-1" class="level2">
+<h2 class="anchored" data-anchor-id="group-2-1">Group 2</h2>
+<p>Our analysis of the metals complex led to the selection of a <strong>Hybrid Volatility Breakout</strong> strategy. The key findings are:</p>
+<ul>
+<li><strong>Regime Separation:</strong> Gold and Silver require different execution logic. Gold’s global liquidity supports a 24-hour trend-following approach, while Silver’s noise and high point-value risk necessitate a strict “US-Session Only” filter.</li>
+<li><strong>Cost Management:</strong> With fixed costs of $15 and $10 per trade, standard high-frequency signals fail. Extending lookback windows to 12h–24h was critical to increasing the average trade size enough to overcome the cost hurdle.</li>
+<li><strong>Portfolio Resilience:</strong> The combined strategy offers a robust profile. Gold provides the offensive capability to capture major trends, while Silver’s time-gating provides defensive diversification, often sitting out during periods of low-quality volatility.</li>
+</ul>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
