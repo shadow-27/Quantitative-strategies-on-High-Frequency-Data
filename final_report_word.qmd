@@ -560,6 +560,17 @@ if os.path.exists("outputs/group2/data2_combined_2025_Q4.png"):
 
 **Comment** This quarter behaved similarly to 2024 Q4, with an immediate and sustained explosive trend. The strategy entered early in October and rode the momentum through the entire month, generating substantial profits ($22k+) with very little drawdown, proving the robustness of the logic in strong bull markets.
 
+### Overall Strategy Performance
+
+```{python}
+#| echo: false
+#| out-width: 100%
+from IPython.display import Image, display
+import os
+if os.path.exists("outputs/group2/data2_TOTAL_EQUITY.png"): 
+    display(Image(filename="outputs/group2/data2_TOTAL_EQUITY.png"))
+```
+
 # Summary and conclusions
 
 ## Group 1

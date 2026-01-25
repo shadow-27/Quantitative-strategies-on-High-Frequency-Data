@@ -271,3 +271,46 @@ if not df_all.empty:
     print("Group 2 Analysis Complete.")
 else:
     print("CRITICAL: No data loaded. Check paths.")
+
+# ==========================================
+# GENERATE TOTAL EQUITY CURVE (2023-2025)
+# ==========================================
+
+# We need to re-run the aggregation across all loaded data to get a continuous series
+# Re-load all data continuous
+df_all_continuous = load_all_data()
+
+if not df_all_continuous.empty:
+    # Run Engine on full history
+    xau_g, xau_n, _ = run_breakout_engine(df_all_continuous, 'XAU', ASSETS_CONFIG['XAU'], PARAMS_XAU)
+    xag_g, xag_n, _ = run_breakout_engine(df_all_continuous, 'XAG', ASSETS_CONFIG['XAG'], PARAMS_XAG)
+    
+    # Combine
+    # We need to align them on the same index
+    total_gross = xau_g.add(xag_g, fill_value=0).fillna(0)
+    total_net = xau_n.add(xag_n, fill_value=0).fillna(0)
+    
+    # Resample to Daily
+    daily_total_gross = total_gross.resample('D').sum()
+    daily_total_net = total_net.resample('D').sum()
+    
+    # Plot
+    plt.figure(figsize=(15, 7))
+    plt.plot(daily_total_gross.cumsum(), label='Gross PnL', color='blue', linewidth=1.5)
+    plt.plot(daily_total_net.cumsum(), label='Net PnL', color='red', linewidth=1.5)
+    
+    # Add vertical lines for years
+    for year in ['2024', '2025']:
+        plt.axvline(pd.Timestamp(f'{year}-01-01'), color='gray', linestyle='--', alpha=0.5)
+    
+    total_profit = daily_total_net.sum()
+    plt.title(f"Group 2 Total Strategy Performance (2023-2025)\nTotal Net Profit: ${total_profit:,.0f}")
+    plt.legend()
+    plt.grid(True, alpha=0.3)
+    plt.ylabel("Cumulative PnL (USD)")
+    
+    # Save
+    plt.savefig(OUTPUT_DIR / "data2_TOTAL_EQUITY.png", dpi=300, bbox_inches="tight")
+    plt.close()
+    
+    print(f"Total Equity Chart saved to {OUTPUT_DIR / 'data2_TOTAL_EQUITY.png'}")
